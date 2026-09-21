@@ -11,7 +11,7 @@
   if (window.hasVinasynetFloatingWidgetInjected) return;
   window.hasVinasynetFloatingWidgetInjected = true;
 
-  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.35)!");
+  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.36)!");
 
   // --- Global State ---
   let isScanning = false;
@@ -236,7 +236,7 @@
     widget.innerHTML = `
       <div id="auto-uploader-header">
         <div class="widget-title-box">
-          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.35</span></span>
+          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.36</span></span>
           <span class="widget-badge" id="vsn-status-badge">Sẵn sàng</span>
         </div>
         <div class="widget-controls">
@@ -1388,6 +1388,7 @@
     }
 
     window.vsn_force_stopped = false;
+    isAutoFlowBusy = false;
 
     const state = {
       isRunning: true,
@@ -1420,6 +1421,9 @@
         chrome.storage.local.set({ vsn_process_checklist: checklist });
       }
     } catch (e) {}
+
+    // Lưu state ngay lập tức vào sessionStorage và chrome.storage
+    await setTabFlowState(state);
 
     logMsg(`▶️ [Auto] BẮT ĐẦU TỰ ĐỘNG XÓA CHO ${codes.length} MÃ HỒ SƠ TRÊN TAB NÀY...`, "info");
     showWebToast("▶️ BẮT ĐẦU TỰ ĐỘNG XÓA", `Khởi chạy tự động xóa cho ${codes.length} mã! (Bấm ESC để dừng)`, "info");

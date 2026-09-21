@@ -1154,10 +1154,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return activeOne || allVsnTabs[0];
             }
 
-            // 3. Fallback tìm theo url chứa domain
+            // 3. Fallback tìm theo url chứa domain ở mọi cửa sổ
             const allTabs = await chrome.tabs.query({});
             const matched = allTabs.find(t => t.url && t.url.includes('ktdl.soxaydung.hungyen.gov.vn'));
             if (matched) return matched;
+
+            // 4. Nếu tab hiện tại trong cùng cửa sổ đang active (trường hợp click icon extension)
+            if (activeTabs && activeTabs.length > 0) {
+                return activeTabs[0];
+            }
 
             return null;
         } catch (e) {
@@ -1183,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof chrome !== 'undefined' && chrome.scripting && chrome.scripting.executeScript) {
                     await chrome.scripting.executeScript({
                         target: { tabId: targetTab.id },
-                        files: ['scripts/content.js']
+                        files: ['scripts/mini-excel.js', 'scripts/content.js']
                     });
                     await new Promise(r => setTimeout(r, 400));
                     return await chrome.tabs.sendMessage(targetTab.id, message);
