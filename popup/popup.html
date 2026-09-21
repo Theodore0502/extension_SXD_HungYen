@@ -20,7 +20,10 @@
                 🖥️ Mở Tab Lớn
             </button>
             <button id="btnTopExportCSV" class="btn btn-secondary btn-sm" title="Tải nhanh toàn bộ Báo cáo kết quả CSV về máy">
-                📊 Tải Báo Cáo CSV
+                📊 Báo Cáo CSV
+            </button>
+            <button id="btnTopExportChecklist" class="btn btn-primary btn-sm" style="background:#4f46e5; border:none;" title="Tải toàn bộ Process Checklist (CSV) phân loại 4 nhóm trạng thái">
+                📋 Checklist (CSV)
             </button>
         </div>
 
@@ -305,6 +308,17 @@
                             <div id="stepsAutoProgressBarFill" class="progress-bar-fill"></div>
                         </div>
                     </div>
+
+                    <!-- Tuỳ chọn kiểm chứng lại 10% các mã đã HOÀN THÀNH -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; font-size:11px; background:#f8fafc; padding:6px 10px; border-radius:6px; border:1px solid #e2e8f0;">
+                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:#334155; font-weight:600;" title="Khi chạy lại, các mã đã HOÀN THÀNH sẽ tự động bỏ qua (Pass), chỉ lấy ngẫu nhiên 10% để kiểm chứng thực tế">
+                            <input type="checkbox" id="chkSpotCheck10" checked style="accent-color:#4f46e5; cursor:pointer;">
+                            <span>🎲 Tự động lấy mẫu 10% kiểm chứng lại mã đã PASS</span>
+                        </label>
+                        <button id="btnExportChecklistCSV" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px; font-weight:700;" title="Xuất file Process_Checklist.csv phân loại 4 nhóm">
+                            📋 Xuất Checklist (CSV)
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -331,6 +345,9 @@
                         <span class="results-badge" id="stepsResultBadge">0 bản ghi</span>
                     </div>
                     <div class="results-header-right">
+                        <button id="btnExportChecklistSteps" class="btn btn-primary btn-sm" style="background:#4f46e5; border:none;" title="Xuất file Process Checklist CSV phân loại 4 nhóm">
+                            📋 Checklist CSV
+                        </button>
                         <button id="btnExportStepsCSV" class="btn btn-success btn-sm" title="Tải toàn bộ bảng kết quả xử lý về máy dưới dạng file CSV">
                             📥 Tải Báo Cáo CSV
                         </button>
@@ -365,7 +382,7 @@
         <!-- Footer -->
         <footer class="footer">
             <span>Hệ thống: <a href="http://ktdl.soxaydung.hungyen.gov.vn/" target="_blank" class="footer-link">ktdl.soxaydung.hungyen.gov.vn</a></span>
-            <span class="ver-tag">v1.1.33</span>
+            <span class="ver-tag">v1.1.34</span>
         </footer>
     </div>
 

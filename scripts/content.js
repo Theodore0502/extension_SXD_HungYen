@@ -11,7 +11,7 @@
   if (window.hasVinasynetFloatingWidgetInjected) return;
   window.hasVinasynetFloatingWidgetInjected = true;
 
-  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.33)!");
+  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.34)!");
 
   // --- Global State ---
   let isScanning = false;
@@ -236,7 +236,7 @@
     widget.innerHTML = `
       <div id="auto-uploader-header">
         <div class="widget-title-box">
-          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.33</span></span>
+          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.34</span></span>
           <span class="widget-badge" id="vsn-status-badge">Sẵn sàng</span>
         </div>
         <div class="widget-controls">
@@ -435,7 +435,8 @@
                 <span id="audit-count-badge" style="font-size:10.5px; color:#f8fafc; background:#0284c7; padding:1px 6px; border-radius:10px; font-weight:700;">0 hồ sơ</span>
               </div>
               <div style="display:flex; gap:4px;">
-                <button class="action-btn btn-success" id="btn-export-audit-csv" style="padding:3px 10px; font-size:10.5px; font-weight:700; background:#10b981; border:none;" title="Tải file CSV báo cáo kết quả chi tiết">📥 Tải Báo Cáo (CSV)</button>
+                <button class="action-btn btn-primary" id="btn-export-checklist-widget" style="padding:3px 9px; font-size:10.5px; font-weight:700; background:#6366f1; border:none;" title="Tải file Process Checklist (CSV) phân loại 4 nhóm">📋 Checklist CSV</button>
+                <button class="action-btn btn-success" id="btn-export-audit-csv" style="padding:3px 9px; font-size:10.5px; font-weight:700; background:#10b981; border:none;" title="Tải file CSV báo cáo kết quả chi tiết">📥 Báo Cáo CSV</button>
                 <button class="action-btn btn-secondary" id="btn-clear-audit" style="padding:3px 6px; font-size:10px;" title="Xóa lịch sử audit để làm mới">🗑️</button>
               </div>
             </div>
@@ -964,6 +965,121 @@
   window.vsn_force_stopped = false;
 
   // =========================================================================
+  // --- MODULE QUẢN LÝ PROCESS CHECKLIST (4 NHÓM TRẠNG THÁI & KIỂM CHỨNG 10%) ---
+  // =========================================================================
+
+  async function getProcessChecklist() {
+    return new Promise((resolve) => {
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get(["vsn_process_checklist"], async (res) => {
+          if (res && res.vsn_process_checklist && Object.keys(res.vsn_process_checklist).length > 0) {
+            resolve(res.vsn_process_checklist);
+          } else {
+            try {
+              const url = chrome.runtime.getURL("process_checklist_seed.json");
+              const resp = await fetch(url);
+              const seed = await resp.json();
+              chrome.storage.local.set({ vsn_process_checklist: seed });
+              resolve(seed);
+            } catch (e) {
+              resolve({});
+            }
+          }
+        });
+      } else {
+        try {
+          const raw = localStorage.getItem("vsn_process_checklist");
+          resolve(raw ? JSON.parse(raw) : {});
+        } catch (e) {
+          resolve({});
+        }
+      }
+    });
+  }
+
+  async function isSpotCheckEnabledSetting() {
+    return new Promise((resolve) => {
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get(["vsn_spot_check_10"], (res) => {
+          resolve(res && res.vsn_spot_check_10 !== undefined ? !!res.vsn_spot_check_10 : true);
+        });
+      } else {
+        resolve(true);
+      }
+    });
+  }
+
+  async function updateChecklistEntry(code, statusGroup, detailStatus, recordCount = "-", kept = "-", spotChecked = false) {
+    if (!code) return;
+    try {
+      const checklist = await getProcessChecklist();
+      const now = new Date();
+      const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      
+      const oldItem = checklist[code] || {};
+      checklist[code] = {
+        code: code,
+        statusGroup: statusGroup,
+        detailStatus: detailStatus,
+        recordCount: recordCount,
+        spotChecked: spotChecked || oldItem.spotChecked || false,
+        kept: kept !== "-" ? kept : (oldItem.kept || "-"),
+        time: timeStr
+      };
+
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ vsn_process_checklist: checklist });
+      }
+      try {
+        localStorage.setItem("vsn_process_checklist", JSON.stringify(checklist));
+      } catch (e) {}
+    } catch (e) {
+      console.error("[Checklist] Lỗi cập nhật entry:", e);
+    }
+  }
+
+  async function exportProcessChecklistCsv() {
+    const checklist = await getProcessChecklist();
+    const codes = Object.keys(checklist);
+    if (codes.length === 0) {
+      alert("Chưa có danh sách mã nào trong Process Checklist!");
+      return;
+    }
+
+    let csvContent = "\uFEFFSTT,Mã hồ sơ,Nhóm trạng thái,Chi tiết trạng thái,Số bản ghi,Kiểm chứng 10%,Bản ghi giữ lại / Tiêu đề,Thời gian cập nhật\n";
+
+    codes.forEach((code, idx) => {
+      const item = checklist[code] || {};
+      const cleanCode = `"${(item.code || code).replace(/"/g, '""')}"`;
+      const cleanGroup = `"${(item.statusGroup || 'CHƯA CHẠY').replace(/"/g, '""')}"`;
+      const cleanDetail = `"${(item.detailStatus || '').replace(/"/g, '""')}"`;
+      const cleanCount = `"${(item.recordCount !== undefined ? item.recordCount : '-').toString().replace(/"/g, '""')}"`;
+      const cleanSpot = item.spotChecked ? '"Đã kiểm chứng (10%)"' : '"Chưa kiểm chứng"';
+      const cleanKept = `"${(item.kept || '-').replace(/"/g, '""')}"`;
+      const cleanTime = `"${(item.time || '-').replace(/"/g, '""')}"`;
+
+      csvContent += `${idx + 1},${cleanCode},${cleanGroup},${cleanDetail},${cleanCount},${cleanSpot},${cleanKept},${cleanTime}\n`;
+    });
+
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+    const filename = `Process_Checklist_${dateStr}.csv`;
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    logMsg(`📋 [Checklist] Đã xuất file: "${filename}" (${codes.length} mã)!`, "success");
+    showWebToast("📋 ĐÃ XUẤT CHECKLIST", `Đã tải về checklist ${codes.length} mã!`, "success");
+  }
+
+  // =========================================================================
   // --- MODULE GHI NHẬN AUDIT LOG & XUẤT BÁO CÁO REPORT CSV ---
   // =========================================================================
 
@@ -1278,7 +1394,28 @@
       codeRetryMap: {} // Theo dõi số lần xóa của từng mã để chống lặp vô hạn
     };
 
-    await setTabFlowState(state);
+    // Đồng bộ các mã nạp mới vào Process Checklist
+    try {
+      const checklist = await getProcessChecklist();
+      let hasNew = false;
+      codes.forEach(c => {
+        if (!checklist[c]) {
+          checklist[c] = {
+            code: c,
+            statusGroup: "CHƯA CHẠY",
+            detailStatus: "Chưa xử lý (Còn trong hàng đợi)",
+            recordCount: "-",
+            spotChecked: false,
+            kept: "-",
+            time: "-"
+          };
+          hasNew = true;
+        }
+      });
+      if (hasNew && typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ vsn_process_checklist: checklist });
+      }
+    } catch (e) {}
 
     logMsg(`▶️ [Auto] BẮT ĐẦU TỰ ĐỘNG XÓA CHO ${codes.length} MÃ HỒ SƠ TRÊN TAB NÀY...`, "info");
     showWebToast("▶️ BẮT ĐẦU TỰ ĐỘNG XÓA", `Khởi chạy tự động xóa cho ${codes.length} mã! (Bấm ESC để dừng)`, "info");
@@ -1439,8 +1576,40 @@
         await setTabFlowState(state);
       }
 
-      // --- 1️⃣ BƯỚC 1: TÌM KIẾM MÃ (TỐC ĐỘ CAO) ---
+      // --- 1️⃣ BƯỚC 1: TÌM KIẾM MÃ (TỐC ĐỘ CAO & CHECKLIST PASS / SPOT-CHECK) ---
       if (step === 1) {
+        // KIỂM TRA CHECKLIST ĐỐI VỚI MÃ NÀY (BỎ QUA MÃ ĐÃ HOÀN THÀNH, LẤY MẪU KIỂM CHỨNG 10%)
+        if (!state.isCurrentSpotChecking) {
+          const checklist = await getProcessChecklist();
+          const checkItem = checklist[code];
+          const spotCheckEnabled = await isSpotCheckEnabledSetting();
+
+          if (checkItem && checkItem.statusGroup === "HOÀN THÀNH") {
+            let runSpotCheck = false;
+            if (spotCheckEnabled && !checkItem.spotChecked) {
+              runSpotCheck = Math.random() < 0.10;
+            }
+
+            if (!runSpotCheck) {
+              logMsg(`⏩ [Checklist: Pass] Mã #${idx + 1}/${codes.length} "${code}" đã HOÀN THÀNH trước đó -> Bỏ qua để tiết kiệm thời gian!`, "info");
+              syncLiveTableRow(code, "1 bản (ĐÃ PASS)", checkItem.kept || "-", "Checklist: Đã hoàn thành (Tự động Pass)", "success");
+
+              state.currentIndex = idx + 1;
+              state.currentStep = 1;
+              await setTabFlowState(state);
+              await sleep(60);
+              isAutoFlowBusy = false;
+              checkAndRunAutoFlow();
+              return;
+            } else {
+              state.isCurrentSpotChecking = true;
+              await setTabFlowState(state);
+              logMsg(`🎲 [Checklist: Kiểm chứng 10%] Mã #${idx + 1}/${codes.length} "${code}" đã note HOÀN THÀNH -> Đang quét xác thực thực tế trên Vinasynet...`, "warning");
+              showWebToast("🎲 KIỂM CHỨNG 10%", `Đang quét xác thực mã đã pass: ${code}`, "warning");
+            }
+          }
+        }
+
         highlightActiveStep(1);
         syncLiveTableRow(code, "Đang lọc...", "-", `1️⃣ [B1] Đang điền mã & Lọc (#${idx + 1}/${codes.length})`, "info");
         logMsg(`1️⃣ [B1: Điền & Lọc] Mã #${idx + 1}/${codes.length}: Đang tìm kiếm mã "${code}" trên Vinasynet...`, "info");
@@ -1499,6 +1668,8 @@
 
             syncLiveTableRow(code, `${scanRes.count} bản (ERROR)`, firstItem.title || firstItem.symbol || "-", "Bỏ qua (Lỗi máy chủ khóa bản ghi)", "danger");
 
+            await updateChecklistEntry(code, "LỖI KHÓA", "Bỏ qua: Lỗi máy chủ khóa bản ghi không cho xóa", scanRes.count, firstItem.title || firstItem.symbol || "-", false);
+
             saveAuditRecord({
               code: code,
               initialCount: state.codeInitialCount[code] || scanRes.count,
@@ -1546,13 +1717,29 @@
               ? state.codeDeletedCount[code] 
               : Math.max(0, (state.codeInitialCount[code] || 1) - 1);
 
+            const isSpot = !!state.isCurrentSpotChecking;
+            if (isSpot) {
+              logMsg(`✅ [Checklist: Xác thực 10%] Mã "${code}" kiểm chứng thực tế CHÍNH XÁC (1 bản duy nhất)!`, "success");
+              state.isCurrentSpotChecking = false;
+              await setTabFlowState(state);
+            }
+
             const scanBadgeText = actualDelCount > 0 ? "1 bản (ĐÃ XÓA TRÙNG)" : "1 bản (CLEAN_OK)";
             const finalNoteText = actualDelCount > 0 
               ? `Đã xóa trùng ${actualDelCount} bản (Còn lại 1 bản duy nhất)` 
-              : "Đạt chuẩn (1 bản duy nhất) - Hồ sơ chuẩn, không có bản trùng thừa";
+              : (isSpot ? "Đạt chuẩn (Đã kiểm chứng thực tế 10%)" : "Đạt chuẩn (1 bản duy nhất) - Hồ sơ chuẩn, không có bản trùng thừa");
             const keptTitleText = firstItem.title || firstItem.symbol || "-";
 
             syncLiveTableRow(code, scanBadgeText, keptTitleText, finalNoteText, "success");
+
+            await updateChecklistEntry(
+              code, 
+              "HOÀN THÀNH", 
+              actualDelCount > 0 ? "Đã xóa trùng (1 bản duy nhất)" : (isSpot ? "Độc nhất chuẩn (Đã kiểm chứng 10%)" : "Độc nhất chuẩn (1 bản)"), 
+              1, 
+              keptTitleText, 
+              isSpot
+            );
 
             saveAuditRecord({
               code: code,
@@ -1570,6 +1757,8 @@
             logMsg(`[B2: Kiểm tra lại] ❓ Mã "${code}": Không tìm thấy bản ghi nào trên hệ thống!`, "warning");
 
             syncLiveTableRow(code, "0 bản (NOT_FOUND)", "-", "Không tìm thấy hồ sơ nào trên hệ thống Vinasynet", "warning");
+
+            await updateChecklistEntry(code, "CẦN SCAN LẠI", "Không tìm thấy hồ sơ (Nghi ngờ timeout/cần xác thực lại)", 0, "-", false);
 
             saveAuditRecord({
               code: code,
@@ -1995,7 +2184,14 @@
       });
     }
 
-    // Gắn sự kiện các nút Audit Report
+    // Gắn sự kiện các nút Audit Report & Process Checklist
+    const btnExportChecklistWidget = document.getElementById("btn-export-checklist-widget");
+    if (btnExportChecklistWidget) {
+      btnExportChecklistWidget.addEventListener("click", () => {
+        exportProcessChecklistCsv();
+      });
+    }
+
     const btnExportAuditCsv = document.getElementById("btn-export-audit-csv");
     if (btnExportAuditCsv) {
       btnExportAuditCsv.addEventListener("click", () => {

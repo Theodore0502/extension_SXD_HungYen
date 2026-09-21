@@ -632,6 +632,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExportStepsCSV = document.getElementById('btnExportStepsCSV');
     const btnClearStepsTable = document.getElementById('btnClearStepsTable');
     const btnTopExportCSV = document.getElementById('btnTopExportCSV');
+    const chkSpotCheck10 = document.getElementById('chkSpotCheck10');
+    const btnExportChecklistCSV = document.getElementById('btnExportChecklistCSV');
+    const btnTopExportChecklist = document.getElementById('btnTopExportChecklist');
+    const btnExportChecklistSteps = document.getElementById('btnExportChecklistSteps');
 
     let stepsCodesList = [];
     let currentStepCodeIndex = 0;
@@ -768,6 +772,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnExportStepsCSV) btnExportStepsCSV.addEventListener('click', exportStepsTableToCSV);
     if (btnTopExportCSV) btnTopExportCSV.addEventListener('click', exportStepsTableToCSV);
+
+    // Xử lý cài đặt và sự kiện Process Checklist (4 nhóm trạng thái & Kiểm chứng 10%)
+    if (chkSpotCheck10 && typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get(['vsn_spot_check_10'], (res) => {
+            if (res && res.vsn_spot_check_10 !== undefined) {
+                chkSpotCheck10.checked = !!res.vsn_spot_check_10;
+            } else {
+                chkSpotCheck10.checked = true;
+            }
+        });
+        chkSpotCheck10.addEventListener('change', () => {
+            chrome.storage.local.set({ vsn_spot_check_10: chkSpotCheck10.checked });
+            addStepsLog(`🎲 Đã ${chkSpotCheck10.checked ? 'BẬT' : 'TẮT'} kiểm chứng ngẫu nhiên 10% mã đã HOÀN THÀNH.`, 'info');
+        });
+    }
+
+    async function exportChecklistToCSV() {
+        let checklist = {};
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            const data = await new Promise(r => chrome.storage.local.get(['vsn_process_checklist'], r));
+            checklist = data && data.vsn_process_checklist ? data.vsn_process_checklist : {};
+        }
+
+        if (Object.keys(checklist).length === 0 && typeof chrome !== 'undefined' && chrome.runtime) {
+            try {
+                const resp = await fetch(chrome.runtime.getURL('process_checklist_seed.json'));
+                checklist = await resp.json();
+                chrome.storage.local.set({ vsn_process_checklist: checklist });
+            } catch (e) {}
+        }
+
+        const codes = Object.keys(checklist);
+        if (codes.length === 0) {
+            alert('Chưa có dữ liệu Process Checklist để xuất file!');
+            return;
+        }
+
+        let csvContent = '\uFEFF';
+        csvContent += 'STT,Mã hồ sơ,Nhóm trạng thái,Chi tiết trạng thái,Số bản ghi,Kiểm chứng 10%,Bản ghi giữ lại / Tiêu đề,Thời gian cập nhật\n';
+
+        codes.forEach((code, idx) => {
+            const item = checklist[code] || {};
+            const cleanCode = `"${(item.code || code).replace(/"/g, '""')}"`;
+            const cleanGroup = `"${(item.statusGroup || 'CHƯA CHẠY').replace(/"/g, '""')}"`;
+            const cleanDetail = `"${(item.detailStatus || '').replace(/"/g, '""')}"`;
+            const cleanCount = `"${(item.recordCount !== undefined ? item.recordCount : '-').toString().replace(/"/g, '""')}"`;
+            const cleanSpot = item.spotChecked ? '"Đã kiểm chứng (10%)"' : '"Chưa kiểm chứng"';
+            const cleanKept = `"${(item.kept || '-').replace(/"/g, '""')}"`;
+            const cleanTime = `"${(item.time || '-').replace(/"/g, '""')}"`;
+
+            csvContent += `${idx + 1},${cleanCode},${cleanGroup},${cleanDetail},${cleanCount},${cleanSpot},${cleanKept},${cleanTime}\n`;
+        });
+
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+        const filename = `Process_Checklist_${dateStr}.csv`;
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        addStepsLog(`📋 Đã tải thành công file Checklist: "${filename}" (${codes.length} mã)!`, 'success');
+    }
+
+    if (btnExportChecklistCSV) btnExportChecklistCSV.addEventListener('click', exportChecklistToCSV);
+    if (btnTopExportChecklist) btnTopExportChecklist.addEventListener('click', exportChecklistToCSV);
+    if (btnExportChecklistSteps) btnExportChecklistSteps.addEventListener('click', exportChecklistToCSV);
 
     if (btnClearStepsTable) {
         btnClearStepsTable.addEventListener('click', () => {
