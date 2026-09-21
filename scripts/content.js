@@ -11,7 +11,7 @@
   if (window.hasVinasynetFloatingWidgetInjected) return;
   window.hasVinasynetFloatingWidgetInjected = true;
 
-  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.38)!");
+  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.39)!");
 
   // --- Global State ---
   let isScanning = false;
@@ -236,7 +236,7 @@
     widget.innerHTML = `
       <div id="auto-uploader-header">
         <div class="widget-title-box">
-          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.38</span></span>
+          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.39</span></span>
           <span class="widget-badge" id="vsn-status-badge">Sẵn sàng</span>
         </div>
         <div class="widget-controls">
@@ -1408,11 +1408,6 @@
     try {
       sessionStorage.removeItem("vsn_tab_force_stopped");
     } catch (e) {}
-    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-      try {
-        chrome.storage.local.remove(["vsn_stop_signal"]);
-      } catch (e) {}
-    }
 
     const state = {
       isRunning: true,
@@ -1457,7 +1452,9 @@
     checkAndRunAutoFlow();
   }
 
-  async function stopAutoDeleteFlow() {
+  async function stopAutoDeleteFlow(syncStorage = true) {
+    if (window.vsn_force_stopped && !syncStorage) return;
+
     window.vsn_force_stopped = true;
     isAutoFlowBusy = false;
     shouldStopDelete = true;
@@ -1466,11 +1463,10 @@
       sessionStorage.removeItem("vsn_tab_auto_flow");
     } catch (e) {}
 
-    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+    if (syncStorage && typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
       try {
         await chrome.storage.local.set({
-          vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() },
-          vsn_stop_signal: Date.now()
+          vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() }
         });
       } catch (e) {}
     }
@@ -1511,19 +1507,6 @@
 
   async function checkAndRunAutoFlow() {
     if (isAutoFlowBusy || isFlowForceStopped()) return;
-
-    // Luôn kiểm tra chéo chrome.storage.local xem có tín hiệu dừng từ Popup hay tab khác không
-    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-      try {
-        const d = await new Promise(r => chrome.storage.local.get(["vsn_auto_flow", "vsn_stop_signal"], r));
-        if (d && (d.vsn_stop_signal || (d.vsn_auto_flow && (d.vsn_auto_flow.isRunning === false || d.vsn_auto_flow.forceStopped)))) {
-          await stopAutoDeleteFlow();
-          return;
-        }
-      } catch (e) {}
-    }
-
-    if (isFlowForceStopped()) return;
 
     // Chỉ đọc state độc lập của riêng tab này từ sessionStorage
     const state = getTabFlowState();
@@ -2556,25 +2539,21 @@
   // Lắng nghe tín hiệu ngắt khẩn cấp từ Popup / Sidebar qua chrome.storage
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === "local") {
-        if (changes.vsn_stop_signal || (changes.vsn_auto_flow && (changes.vsn_auto_flow.newValue?.isRunning === false || changes.vsn_auto_flow.newValue?.forceStopped))) {
-          stopAutoDeleteFlow();
+      if (area === "local" && changes.vsn_auto_flow) {
+        const val = changes.vsn_auto_flow.newValue;
+        if (val && (val.isRunning === false || val.forceStopped)) {
+          if (!window.vsn_force_stopped) {
+            stopAutoDeleteFlow(false);
+          }
         }
       }
     });
   }
 
   // Tự động kiểm tra và tiếp tục tiến trình tự động xóa khi trang web load xong
-  setTimeout(async () => {
-    // Kiểm tra chrome.storage.local xem có lệnh dừng khẩn cấp trước đó không
-    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-      try {
-        const d = await new Promise(r => chrome.storage.local.get(["vsn_auto_flow", "vsn_stop_signal"], r));
-        if (d && (d.vsn_stop_signal || (d.vsn_auto_flow && (d.vsn_auto_flow.isRunning === false || d.vsn_auto_flow.forceStopped)))) {
-          await stopAutoDeleteFlow();
-          return;
-        }
-      } catch (e) {}
+  setTimeout(() => {
+    if (window.vsn_force_stopped || sessionStorage.getItem("vsn_tab_force_stopped") === "true") {
+      return;
     }
     checkAndRunAutoFlow();
   }, 400);

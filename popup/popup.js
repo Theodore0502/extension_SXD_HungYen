@@ -564,8 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
                 try {
                     await chrome.storage.local.set({
-                        vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() },
-                        vsn_stop_signal: Date.now()
+                        vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() }
                     });
                 } catch (e) {}
             }
@@ -1408,13 +1407,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Xóa cờ ngắt dừng khẩn cấp trước khi khởi chạy
-            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                try {
-                    await chrome.storage.local.remove(['vsn_stop_signal']);
-                } catch (e) {}
-            }
-
             btnAutoDeleteRun.disabled = true;
             if (btnAutoDeleteStop) btnAutoDeleteStop.disabled = false;
             if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'block';
@@ -1447,8 +1439,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
                 try {
                     await chrome.storage.local.set({
-                        vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() },
-                        vsn_stop_signal: Date.now()
+                        vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() }
                     });
                 } catch (e) {}
             }
