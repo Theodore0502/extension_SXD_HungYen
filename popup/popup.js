@@ -701,12 +701,21 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (item.statusType === 'danger') badgeClass = 'badge-error';
             else if (item.statusType === 'success') badgeClass = 'badge-zero';
 
+            let scanDisplay = item.scanResText || '-';
+            let noteDisplay = item.actionNote || '-';
+            if (item.statusType === 'success' && scanDisplay.includes('Đang lọc')) {
+                scanDisplay = '1 bản (CLEAN_OK)';
+                if (noteDisplay.includes('Đang điền mã') || noteDisplay.includes('Đang xử lý')) {
+                    noteDisplay = 'Đạt chuẩn (1 bản duy nhất) - Hồ sơ chuẩn, không có bản trùng thừa';
+                }
+            }
+
             html += `<tr>
                 <td style="text-align:center; font-weight:700;">${idx + 1}</td>
                 <td style="font-family:monospace; font-weight:700; color:#4f46e5;">${item.code}</td>
-                <td><span class="badge ${badgeClass}">${item.scanResText}</span></td>
-                <td style="font-size:11px;">${item.keptText}</td>
-                <td style="font-size:11px; font-weight:600;">${item.actionNote}</td>
+                <td><span class="badge ${badgeClass}">${scanDisplay}</span></td>
+                <td style="font-size:11px;">${item.keptText || '-'}</td>
+                <td style="font-size:11px; font-weight:600;">${noteDisplay}</td>
             </tr>`;
         });
 
@@ -725,9 +734,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         stepsTableRecords.forEach((item, idx) => {
             const cleanCode = `"${(item.code || '').replace(/"/g, '""')}"`;
-            const cleanScan = `"${(item.scanResText || '').replace(/"/g, '""')}"`;
+            let scanText = item.scanResText || '-';
+            let noteText = item.actionNote || '-';
+            if (item.statusType === 'success' && scanText.includes('Đang lọc')) {
+                scanText = '1 bản (CLEAN_OK)';
+                if (noteText.includes('Đang điền mã') || noteText.includes('Đang xử lý')) {
+                    noteText = 'Đạt chuẩn (1 bản duy nhất) - Hồ sơ chuẩn, không có bản trùng thừa';
+                }
+            }
+            const cleanScan = `"${scanText.replace(/"/g, '""')}"`;
             const cleanKept = `"${(item.keptText || '').replace(/"/g, '""')}"`;
-            const cleanNote = `"${(item.actionNote || '').replace(/"/g, '""')}"`;
+            const cleanNote = `"${noteText.replace(/"/g, '""')}"`;
             const time = `"${item.time || ''}"`;
             csvContent += `${idx + 1},${cleanCode},${cleanScan},${cleanKept},${cleanNote},${time}\n`;
         });

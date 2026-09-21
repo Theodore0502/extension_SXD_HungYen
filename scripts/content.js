@@ -11,7 +11,7 @@
   if (window.hasVinasynetFloatingWidgetInjected) return;
   window.hasVinasynetFloatingWidgetInjected = true;
 
-  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.32)!");
+  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.33)!");
 
   // --- Global State ---
   let isScanning = false;
@@ -92,9 +92,9 @@
       if (statusType) rows[idx].statusType = statusType;
       rows[idx].time = timeOnly;
     } else {
-      rows.unshift({
+      rows.push({
         code: code,
-        scanResText: scanResText || "Đang quét...",
+        scanResText: scanResText || "Đang lọc...",
         keptText: keptText || "-",
         actionNote: actionNote || "Đang xử lý...",
         statusType: statusType || "info",
@@ -236,7 +236,7 @@
     widget.innerHTML = `
       <div id="auto-uploader-header">
         <div class="widget-title-box">
-          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.30</span></span>
+          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.33</span></span>
           <span class="widget-badge" id="vsn-status-badge">Sẵn sàng</span>
         </div>
         <div class="widget-controls">
@@ -1067,7 +1067,16 @@
         try {
           const tableRows = list.map(item => {
             const isOk = item.status === "CLEAN_OK" || item.status === "DELETED_SUCCESS";
-            const scanText = item.initialCount !== '-' ? `${item.initialCount} bản` : 'Đã scan';
+            let scanText = "1 bản (CLEAN_OK)";
+            if (item.status === "DELETED_SUCCESS") {
+              scanText = "1 bản (ĐÃ XÓA TRÙNG)";
+            } else if (item.status === "ERROR_SKIPPED") {
+              scanText = item.initialCount !== "-" ? `${item.initialCount} bản (ERROR)` : "Lỗi server";
+            } else if (item.status === "NOT_FOUND") {
+              scanText = "0 bản (NOT_FOUND)";
+            } else if (item.initialCount !== "-") {
+              scanText = `${item.initialCount} bản`;
+            }
             const keptText = item.title && item.title !== '-' ? item.title : (item.symbol || item.code);
             const noteText = item.statusText + (item.notes ? ` (${item.notes})` : '');
             const stType = isOk ? 'success' : (item.status === 'ERROR_SKIPPED' ? 'danger' : 'warning');
@@ -1081,6 +1090,7 @@
               time: timeOnly
             };
           });
+          sessionStorage.setItem("vsn_steps_live_rows", JSON.stringify(tableRows));
           chrome.storage.local.set({ 
             vsn_audit_records: list,
             vsn_steps_table_records: tableRows
@@ -1126,6 +1136,7 @@
   function clearAuditLogData(showToast = false) {
     try {
       sessionStorage.removeItem("vsn_tab_audit_log");
+      sessionStorage.removeItem("vsn_steps_live_rows");
       localStorage.removeItem("vsn_global_audit_log");
       if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
         chrome.storage.local.remove(["vsn_tab_audit_log", "vsn_global_audit_log", "vsn_audit_records", "vsn_steps_table_records"]);
@@ -1486,6 +1497,8 @@
             logMsg(`⚠️ [B2: Lỗi máy chủ] Mã "${code}" đã thử xóa ${retries - 1} lần nhưng máy chủ không cho phép. BỎ QUA để chuyển tiếp!`, "danger");
             showWebToast("⚠️ BỎ QUA MÃ NÀY", `Mã ${code} không thể xóa trên server. Chuyển tiếp!`, "danger");
 
+            syncLiveTableRow(code, `${scanRes.count} bản (ERROR)`, firstItem.title || firstItem.symbol || "-", "Bỏ qua (Lỗi máy chủ khóa bản ghi)", "danger");
+
             saveAuditRecord({
               code: code,
               initialCount: state.codeInitialCount[code] || scanRes.count,
@@ -1532,6 +1545,15 @@
             const actualDelCount = wasDeleted 
               ? state.codeDeletedCount[code] 
               : Math.max(0, (state.codeInitialCount[code] || 1) - 1);
+
+            const scanBadgeText = actualDelCount > 0 ? "1 bản (ĐÃ XÓA TRÙNG)" : "1 bản (CLEAN_OK)";
+            const finalNoteText = actualDelCount > 0 
+              ? `Đã xóa trùng ${actualDelCount} bản (Còn lại 1 bản duy nhất)` 
+              : "Đạt chuẩn (1 bản duy nhất) - Hồ sơ chuẩn, không có bản trùng thừa";
+            const keptTitleText = firstItem.title || firstItem.symbol || "-";
+
+            syncLiveTableRow(code, scanBadgeText, keptTitleText, finalNoteText, "success");
+
             saveAuditRecord({
               code: code,
               initialCount: state.codeInitialCount[code] !== undefined ? state.codeInitialCount[code] : 1,
@@ -1546,6 +1568,8 @@
             });
           } else {
             logMsg(`[B2: Kiểm tra lại] ❓ Mã "${code}": Không tìm thấy bản ghi nào trên hệ thống!`, "warning");
+
+            syncLiveTableRow(code, "0 bản (NOT_FOUND)", "-", "Không tìm thấy hồ sơ nào trên hệ thống Vinasynet", "warning");
 
             saveAuditRecord({
               code: code,
