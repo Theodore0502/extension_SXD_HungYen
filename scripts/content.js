@@ -11,7 +11,7 @@
   if (window.hasVinasynetFloatingWidgetInjected) return;
   window.hasVinasynetFloatingWidgetInjected = true;
 
-  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.34)!");
+  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.35)!");
 
   // --- Global State ---
   let isScanning = false;
@@ -236,7 +236,7 @@
     widget.innerHTML = `
       <div id="auto-uploader-header">
         <div class="widget-title-box">
-          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.34</span></span>
+          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.35</span></span>
           <span class="widget-badge" id="vsn-status-badge">Sẵn sàng</span>
         </div>
         <div class="widget-controls">
@@ -1281,21 +1281,25 @@
     // 2. Reset Nhật ký logs (cả trong sessionStorage và DOM hiển thị)
     try {
       sessionStorage.removeItem("vsn_saved_logs");
+      sessionStorage.removeItem("vsn_tab_auto_flow");
+      sessionStorage.removeItem("vsn_auto_flow_state");
     } catch (e) {}
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.remove(["vsn_auto_flow", "vsn_saved_logs"]);
+    }
     const logsBox = document.getElementById("vsn-logs-box");
     if (logsBox) {
       logsBox.innerHTML = "";
     }
 
     // 3. Reset trạng thái luồng xử lý và các biến đếm
-    try {
-      sessionStorage.removeItem("vsn_auto_flow_state");
-    } catch (e) {}
     currentStepIdx = 0;
     stepsProcessedMap = {};
+    updateAutoControlsUI(false);
+    highlightActiveStep(0);
 
     // 4. Ghi 1 dòng thông báo khởi đầu duy nhất với timestamp
-    logMsg(`📋 [Danh Sách Mới] Đã nạp thành công ${newCount} mã hồ sơ! Bảng kết quả và Nhật ký đã được tự động làm mới để bắt đầu phiên mới.`, "success");
+    logMsg(`📋 [Danh Sách Mới] Đã nạp thành công ${newCount} mã hồ sơ! Tiến độ (0/${newCount} mã, 0%), Bảng kết quả và Nhật ký đã được tự động làm mới để bắt đầu phiên mới.`, "success");
     showWebToast("📋 ĐÃ NẠP LIST MỚI", `Tự động reset Bảng & Log cho ${newCount} mã mới!`, "success");
   }
 

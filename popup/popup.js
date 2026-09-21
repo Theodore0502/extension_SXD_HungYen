@@ -890,17 +890,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (d.vsn_auto_flow && d.vsn_auto_flow.isRunning) {
                     const flow = d.vsn_auto_flow;
-                    if (btnAutoDeleteRun) btnAutoDeleteRun.disabled = true;
-                    if (btnAutoDeleteStop) btnAutoDeleteStop.disabled = false;
-                    if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'block';
-                    const total = (flow.codes && flow.codes.length) || 0;
-                    const cur = flow.currentIndex || 0;
-                    const pct = total > 0 ? Math.round((cur / total) * 100) : 0;
-                    const curCode = (flow.codes && flow.codes[cur]) || '';
-                    if (stepsAutoProgressText) stepsAutoProgressText.textContent = `Đang xử lý mã ${cur + 1}/${total} (${curCode})`;
-                    if (stepsAutoProgressPercent) stepsAutoProgressPercent.textContent = `${pct}%`;
-                    if (stepsAutoProgressBarFill) stepsAutoProgressBarFill.style.width = `${pct}%`;
-                    highlightPopupStep(flow.currentStep || 1);
+                    const curTextCodes = stepsTextarea ? MiniExcel.parseTextLines(stepsTextarea.value) : [];
+                    if (curTextCodes.length > 0 && flow.codes && flow.codes.length !== curTextCodes.length) {
+                        chrome.storage.local.remove(['vsn_auto_flow']);
+                        if (btnAutoDeleteRun) btnAutoDeleteRun.disabled = false;
+                        if (btnAutoDeleteStop) btnAutoDeleteStop.disabled = true;
+                        if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'none';
+                    } else {
+                        if (btnAutoDeleteRun) btnAutoDeleteRun.disabled = true;
+                        if (btnAutoDeleteStop) btnAutoDeleteStop.disabled = false;
+                        if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'block';
+                        const total = (flow.codes && flow.codes.length) || 0;
+                        const cur = flow.currentIndex || 0;
+                        const pct = total > 0 ? Math.round((cur / total) * 100) : 0;
+                        const curCode = (flow.codes && flow.codes[cur]) || '';
+                        if (stepsAutoProgressText) stepsAutoProgressText.textContent = `Đang xử lý mã ${cur + 1}/${total} (${curCode})`;
+                        if (stepsAutoProgressPercent) stepsAutoProgressPercent.textContent = `${pct}%`;
+                        if (stepsAutoProgressBarFill) stepsAutoProgressBarFill.style.width = `${pct}%`;
+                        highlightPopupStep(flow.currentStep || 1);
+                    }
+                } else {
+                    if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'none';
+                    if (btnAutoDeleteRun) btnAutoDeleteRun.disabled = false;
+                    if (btnAutoDeleteStop) btnAutoDeleteStop.disabled = true;
                 }
             }
         });
@@ -932,7 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fromUserInput && stepsCodesList.length !== lastLoggedCount) {
             lastLoggedCount = stepsCodesList.length;
             if (stepsCodesList.length > 0) {
-                addStepsLog(`📋 [Danh sách] Đã nạp thành công ${stepsCodesList.length} mã hồ sơ vào danh sách xử lý!`, 'success');
+                resetPopupTableAndLogsForNewList(stepsCodesList.length);
             }
         }
 
@@ -966,7 +978,14 @@ document.addEventListener('DOMContentLoaded', () => {
         stepsTableRecords = [];
         renderStepsTable();
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-            chrome.storage.local.remove(['vsn_steps_table_records', 'vsn_audit_records', 'vsn_tab_audit_log', 'vsn_global_audit_log']);
+            chrome.storage.local.remove([
+                'vsn_steps_table_records', 
+                'vsn_audit_records', 
+                'vsn_tab_audit_log', 
+                'vsn_global_audit_log',
+                'vsn_auto_flow',
+                'vsn_saved_logs'
+            ]);
         }
 
         // 2. Reset logs
@@ -978,8 +997,24 @@ document.addEventListener('DOMContentLoaded', () => {
         currentStepCodeIndex = 0;
         stepsProcessedMap = {};
 
-        // 4. Log mới
-        addStepsLog(`📋 [Danh Sách Mới] Đã nạp thành công ${count} mã hồ sơ! Bảng kết quả & Nhật ký đã được tự động làm mới.`, 'success');
+        // 4. RESET KHUNG TIẾN ĐỘ PROGRESS BOX & CẬP NHẬT TỔNG MÃ MỚI
+        if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'none';
+        if (stepsAutoProgressText) stepsAutoProgressText.textContent = `Sẵn sàng: 0/${count} mã`;
+        if (stepsAutoProgressPercent) stepsAutoProgressPercent.textContent = '0%';
+        if (stepsAutoProgressBarFill) stepsAutoProgressBarFill.style.width = '0%';
+        if (btnAutoDeleteRun) btnAutoDeleteRun.disabled = false;
+        if (btnAutoDeleteStop) btnAutoDeleteStop.disabled = true;
+        highlightPopupStep(0);
+        lastLoggedStep = 0;
+        lastLoggedCode = '';
+
+        // Dừng tiến trình cũ nếu còn chạy ngầm trên tab web
+        try {
+            sendMessageToActiveTab({ action: 'STOP_AUTO_FLOW' });
+        } catch (e) {}
+
+        // 5. Ghi log khởi đầu
+        addStepsLog(`📋 [Danh Sách Mới] Đã nạp thành công ${count} mã hồ sơ! Tiến độ (0/${count} mã, 0%), Bảng kết quả & Nhật ký đã được tự động làm mới.`, 'success');
     }
 
     if (stepsTextarea) {
@@ -1369,6 +1404,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btnAutoDeleteStop.addEventListener('click', async () => {
             btnAutoDeleteRun.disabled = false;
             btnAutoDeleteStop.disabled = true;
+            if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'none';
+            if (stepsAutoProgressText) stepsAutoProgressText.textContent = 'Đã dừng';
+            if (stepsAutoProgressPercent) stepsAutoProgressPercent.textContent = '0%';
+            if (stepsAutoProgressBarFill) stepsAutoProgressBarFill.style.width = '0%';
+            highlightPopupStep(0);
             if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
                 try { await chrome.storage.local.remove(['vsn_auto_flow']); } catch (e) {}
             }
@@ -1441,6 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     if (btnAutoDeleteRun) btnAutoDeleteRun.disabled = false;
                     if (btnAutoDeleteStop) btnAutoDeleteStop.disabled = true;
+                    if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'none';
                     highlightPopupStep(0);
                     lastLoggedStep = 0;
                 }
