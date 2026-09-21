@@ -550,10 +550,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (btnStopDelete) {
-        btnStopDelete.addEventListener('click', () => {
+        btnStopDelete.addEventListener('click', async () => {
             shouldStopDelete = true;
             btnStopDelete.textContent = 'Đang dừng...';
             btnStopDelete.disabled = true;
+
+            // Kích hoạt dừng luồng tự động ở Tab Quy trình các bước
+            if (btnAutoDeleteStop) {
+                btnAutoDeleteStop.click();
+            }
+
+            // Ghi tín hiệu ngắt khẩn cấp vào chrome.storage.local
+            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                try {
+                    await chrome.storage.local.set({
+                        vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() },
+                        vsn_stop_signal: Date.now()
+                    });
+                } catch (e) {}
+            }
+
+            await sendMessageToActiveTab({ action: 'STOP_AUTO_FLOW' });
+            setTimeout(() => {
+                btnStopDelete.textContent = 'Dừng lại';
+                btnStopDelete.disabled = false;
+            }, 800);
         });
     }
 
@@ -1387,6 +1408,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Xóa cờ ngắt dừng khẩn cấp trước khi khởi chạy
+            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                try {
+                    await chrome.storage.local.remove(['vsn_stop_signal']);
+                } catch (e) {}
+            }
+
             btnAutoDeleteRun.disabled = true;
             if (btnAutoDeleteStop) btnAutoDeleteStop.disabled = false;
             if (stepsAutoProgressBox) stepsAutoProgressBox.style.display = 'block';
@@ -1414,9 +1442,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (stepsAutoProgressPercent) stepsAutoProgressPercent.textContent = '0%';
             if (stepsAutoProgressBarFill) stepsAutoProgressBarFill.style.width = '0%';
             highlightPopupStep(0);
+
+            // Ghi tín hiệu ngắt khẩn cấp đồng bộ tới TẤT CẢ các tab web Vinasynet
             if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                try { await chrome.storage.local.remove(['vsn_auto_flow']); } catch (e) {}
+                try {
+                    await chrome.storage.local.set({
+                        vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() },
+                        vsn_stop_signal: Date.now()
+                    });
+                } catch (e) {}
             }
+
             addStepsLog(`⏹️ [Auto] Đã bấm dừng tiến trình tự động xóa.`, 'danger');
             await sendMessageToActiveTab({ action: 'STOP_AUTO_FLOW' });
         });

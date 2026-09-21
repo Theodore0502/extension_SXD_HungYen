@@ -11,7 +11,7 @@
   if (window.hasVinasynetFloatingWidgetInjected) return;
   window.hasVinasynetFloatingWidgetInjected = true;
 
-  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.36)!");
+  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.37)!");
 
   // --- Global State ---
   let isScanning = false;
@@ -236,7 +236,7 @@
     widget.innerHTML = `
       <div id="auto-uploader-header">
         <div class="widget-title-box">
-          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.36</span></span>
+          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.37</span></span>
           <span class="widget-badge" id="vsn-status-badge">Sẵn sàng</span>
         </div>
         <div class="widget-controls">
@@ -1356,6 +1356,17 @@
     }
   });
 
+  // Kiểm tra cờ dừng khẩn cấp trên tab hiện tại hoặc toàn cục
+  function isFlowForceStopped() {
+    if (window.vsn_force_stopped) return true;
+    try {
+      if (sessionStorage.getItem("vsn_tab_force_stopped") === "true") return true;
+      const state = getTabFlowState();
+      if (!state || !state.isRunning) return true;
+    } catch (e) {}
+    return false;
+  }
+
   // Lấy trạng thái của riêng Tab này từ sessionStorage (Hỗ trợ duplicate tab chạy song song nhiều luồng)
   function getTabFlowState() {
     try {
@@ -1367,13 +1378,17 @@
 
   async function setTabFlowState(state) {
     try {
-      if (!state || !state.isRunning) {
+      if (isFlowForceStopped() || !state || !state.isRunning) {
         sessionStorage.removeItem("vsn_tab_auto_flow");
+        sessionStorage.setItem("vsn_tab_force_stopped", "true");
         if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-          chrome.storage.local.set({ vsn_auto_flow: { isRunning: false } });
+          chrome.storage.local.set({
+            vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() }
+          });
         }
       } else {
         sessionStorage.setItem("vsn_tab_auto_flow", JSON.stringify(state));
+        sessionStorage.removeItem("vsn_tab_force_stopped");
         if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
           chrome.storage.local.set({ vsn_auto_flow: state });
         }
@@ -1389,6 +1404,15 @@
 
     window.vsn_force_stopped = false;
     isAutoFlowBusy = false;
+    shouldStopDelete = false;
+    try {
+      sessionStorage.removeItem("vsn_tab_force_stopped");
+    } catch (e) {}
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      try {
+        chrome.storage.local.remove(["vsn_stop_signal"]);
+      } catch (e) {}
+    }
 
     const state = {
       isRunning: true,
@@ -1435,13 +1459,19 @@
 
   async function stopAutoDeleteFlow() {
     window.vsn_force_stopped = true;
+    isAutoFlowBusy = false;
+    shouldStopDelete = true;
     try {
+      sessionStorage.setItem("vsn_tab_force_stopped", "true");
       sessionStorage.removeItem("vsn_tab_auto_flow");
     } catch (e) {}
 
     if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
       try {
-        await chrome.storage.local.remove(["vsn_auto_flow"]);
+        await chrome.storage.local.set({
+          vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() },
+          vsn_stop_signal: Date.now()
+        });
       } catch (e) {}
     }
 
@@ -1480,7 +1510,20 @@
   }
 
   async function checkAndRunAutoFlow() {
-    if (isAutoFlowBusy || window.vsn_force_stopped) return;
+    if (isAutoFlowBusy || isFlowForceStopped()) return;
+
+    // Luôn kiểm tra chéo chrome.storage.local xem có tín hiệu dừng từ Popup hay tab khác không
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      try {
+        const d = await new Promise(r => chrome.storage.local.get(["vsn_auto_flow", "vsn_stop_signal"], r));
+        if (d && (d.vsn_stop_signal || (d.vsn_auto_flow && (d.vsn_auto_flow.isRunning === false || d.vsn_auto_flow.forceStopped)))) {
+          await stopAutoDeleteFlow();
+          return;
+        }
+      } catch (e) {}
+    }
+
+    if (isFlowForceStopped()) return;
 
     // Chỉ đọc state độc lập của riêng tab này từ sessionStorage
     const state = getTabFlowState();
@@ -1533,6 +1576,8 @@
         const chkAccept = document.getElementById("ctl13_chkAccept");
 
         if (step === 4 && (btnDelete || chkAccept)) {
+          if (isFlowForceStopped()) return;
+
           // 4️⃣ BƯỚC 4: TICK XÁC NHẬN XÓA & NHẤN XÓA NGAY (SIÊU TỐC)
           highlightActiveStep(4);
           syncLiveTableRow(code, null, null, "4️⃣ [B4] Đã tick Xác nhận xóa & Nhấn Xóa ngay !", "danger");
@@ -1542,6 +1587,7 @@
           // Cập nhật trạng thái tiếp theo là Bước 5
           state.currentStep = 5;
           await setTabFlowState(state);
+          if (isFlowForceStopped()) return;
 
           // Thực thi Bước 4: Tick chọn & submit form ASP.NET
           const execRes = await confirmAndExecuteDeletePage();
@@ -1554,6 +1600,8 @@
           // Dừng lại để form ASP.NET POST lên server và reload trang xóa
           return;
         } else {
+          if (isFlowForceStopped()) return;
+
           // 5️⃣ BƯỚC 5: BẤM THOÁT RA ĐỂ QUAY LẠI DANH SÁCH QUẢN LÝ HỒ SƠ
           highlightActiveStep(5);
           syncLiveTableRow(code, null, null, "5️⃣ [B5] Bấm Thoát ra quay lại danh sách Quản lý hồ sơ", "info");
@@ -1565,6 +1613,7 @@
           await setTabFlowState(state);
 
           await sleep(200);
+          if (isFlowForceStopped()) return;
 
           // Thực thi Bước 5: Bấm Thoát ra
           await exitBackToListOnWeb();
@@ -1599,6 +1648,8 @@
             }
 
             if (!runSpotCheck) {
+              if (isFlowForceStopped()) return;
+
               logMsg(`⏩ [Checklist: Pass] Mã #${idx + 1}/${codes.length} "${code}" đã HOÀN THÀNH trước đó -> Bỏ qua để tiết kiệm thời gian!`, "info");
               syncLiveTableRow(code, "1 bản (ĐÃ PASS)", checkItem.kept || "-", "Checklist: Đã hoàn thành (Tự động Pass)", "success");
 
@@ -1606,6 +1657,7 @@
               state.currentStep = 1;
               await setTabFlowState(state);
               await sleep(60);
+              if (isFlowForceStopped()) return;
               isAutoFlowBusy = false;
               checkAndRunAutoFlow();
               return;
@@ -1618,6 +1670,7 @@
           }
         }
 
+        if (isFlowForceStopped()) return;
         highlightActiveStep(1);
         syncLiveTableRow(code, "Đang lọc...", "-", `1️⃣ [B1] Đang điền mã & Lọc (#${idx + 1}/${codes.length})`, "info");
         logMsg(`1️⃣ [B1: Điền & Lọc] Mã #${idx + 1}/${codes.length}: Đang tìm kiếm mã "${code}" trên Vinasynet...`, "info");
@@ -1629,13 +1682,16 @@
           const fond = document.getElementById("cboFonds");
           return kw && fond;
         }, 4000, 30);
+        if (isFlowForceStopped()) return;
 
         // Chờ ngắn 350ms cho ổn định
         await sleep(350);
+        if (isFlowForceStopped()) return;
 
         // Đặt trước trạng thái tiếp theo là Bước 2
         state.currentStep = 2;
         await setTabFlowState(state);
+        if (isFlowForceStopped()) return;
 
         // Kích hoạt tìm kiếm mã (reload trang sang vmode/filter)
         await searchCodeOnWeb(code);
@@ -1644,6 +1700,7 @@
 
       // --- 2️⃣ BƯỚC 2: ĐẾM & SCAN SỐ LƯỢNG BẢN GHI (TỐC ĐỘ CAO + CHỐNG LẶP VÔ HẠN) ---
       if (step === 2) {
+        if (isFlowForceStopped()) return;
         highlightActiveStep(2);
         showWebToast("2️⃣ BƯỚC 2: ĐẾM & SCAN", `Đang quét các bản ghi của mã: ${code}...`, "warning");
 
@@ -1651,10 +1708,13 @@
         await waitForCondition(() => {
           return document.querySelectorAll("tr.item").length > 0 || document.querySelector(".fFilterBox");
         }, 1500, 30);
+        if (isFlowForceStopped()) return;
 
         await sleep(250);
+        if (isFlowForceStopped()) return;
 
         const scanRes = await scanRowsOnWeb(code);
+        if (isFlowForceStopped()) return;
         logMsg(`2️⃣ [B2: Quét bản ghi] Mã "${code}": Phát hiện ${scanRes.count} bản ghi (${scanRes.statusText})`, scanRes.count > 1 ? "warning" : "success");
 
         if (!state.codeInitialCount) state.codeInitialCount = {};
@@ -1697,6 +1757,7 @@
             await setTabFlowState(state);
 
             await sleep(400);
+            if (isFlowForceStopped()) return;
             isAutoFlowBusy = false;
             checkAndRunAutoFlow();
             return;
@@ -1711,6 +1772,7 @@
           await setTabFlowState(state);
 
           await sleep(150);
+          if (isFlowForceStopped()) return;
           isAutoFlowBusy = false;
           checkAndRunAutoFlow();
           return;
@@ -1788,6 +1850,7 @@
           await setTabFlowState(state);
 
           await sleep(350);
+          if (isFlowForceStopped()) return;
           isAutoFlowBusy = false;
           checkAndRunAutoFlow();
           return;
@@ -1796,6 +1859,7 @@
 
       // --- 3️⃣ BƯỚC 3: TÍCH CHỌN BẢN GHI THỪA & CLICK XÓA (#ctl13_lnkDelete) ---
       if (step === 3) {
+        if (isFlowForceStopped()) return;
         highlightActiveStep(3);
         syncLiveTableRow(code, null, null, "3️⃣ [B3] Tích chọn bản thừa & Kích hoạt xóa (#ctl13_lnkDelete)", "warning");
         logMsg(`3️⃣ [B3: Tích & Xóa] Đang tích chọn các bản trùng thừa (#2, #3...) & Kích hoạt xóa (#ctl13_lnkDelete) cho mã "${code}"...`, "warning");
@@ -1806,6 +1870,7 @@
         await setTabFlowState(state);
 
         await sleep(150);
+        if (isFlowForceStopped()) return;
 
         const clickRes = await clickDeleteButtonOnWeb();
         if (!clickRes || !clickRes.success) {
@@ -2183,6 +2248,10 @@
         shouldStopDelete = true;
         btnStopDel.disabled = true;
         logMsg("⏹️ Đã nhấn dừng tiến trình Xóa Trùng.", "warning");
+        stopAutoDeleteFlow();
+        setTimeout(() => {
+          btnStopDel.disabled = false;
+        }, 1000);
       });
     }
 
@@ -2484,8 +2553,29 @@
     });
   }
 
+  // Lắng nghe tín hiệu ngắt khẩn cấp từ Popup / Sidebar qua chrome.storage
+  if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "local") {
+        if (changes.vsn_stop_signal || (changes.vsn_auto_flow && (changes.vsn_auto_flow.newValue?.isRunning === false || changes.vsn_auto_flow.newValue?.forceStopped))) {
+          stopAutoDeleteFlow();
+        }
+      }
+    });
+  }
+
   // Tự động kiểm tra và tiếp tục tiến trình tự động xóa khi trang web load xong
-  setTimeout(() => {
+  setTimeout(async () => {
+    // Kiểm tra chrome.storage.local xem có lệnh dừng khẩn cấp trước đó không
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      try {
+        const d = await new Promise(r => chrome.storage.local.get(["vsn_auto_flow", "vsn_stop_signal"], r));
+        if (d && (d.vsn_stop_signal || (d.vsn_auto_flow && (d.vsn_auto_flow.isRunning === false || d.vsn_auto_flow.forceStopped)))) {
+          await stopAutoDeleteFlow();
+          return;
+        }
+      } catch (e) {}
+    }
     checkAndRunAutoFlow();
   }, 400);
 
