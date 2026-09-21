@@ -11,7 +11,7 @@
   if (window.hasVinasynetFloatingWidgetInjected) return;
   window.hasVinasynetFloatingWidgetInjected = true;
 
-  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.37)!");
+  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.38)!");
 
   // --- Global State ---
   let isScanning = false;
@@ -236,7 +236,7 @@
     widget.innerHTML = `
       <div id="auto-uploader-header">
         <div class="widget-title-box">
-          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.37</span></span>
+          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.38</span></span>
           <span class="widget-badge" id="vsn-status-badge">Sẵn sàng</span>
         </div>
         <div class="widget-controls">
