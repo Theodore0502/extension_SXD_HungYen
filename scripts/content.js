@@ -11,7 +11,7 @@
   if (window.hasVinasynetFloatingWidgetInjected) return;
   window.hasVinasynetFloatingWidgetInjected = true;
 
-  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.39)!");
+  console.log("⚡ [Vinasynet Extension] Khởi tạo Widget điều khiển trực tiếp trên Web (v1.1.40)!");
 
   // --- Global State ---
   let isScanning = false;
@@ -236,7 +236,7 @@
     widget.innerHTML = `
       <div id="auto-uploader-header">
         <div class="widget-title-box">
-          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.39</span></span>
+          <span class="widget-title">📂 VINASYNET MANAGER <span style="font-size:10px; opacity:0.8;">v1.1.40</span></span>
           <span class="widget-badge" id="vsn-status-badge">Sẵn sàng</span>
         </div>
         <div class="widget-controls">
@@ -1361,8 +1361,6 @@
     if (window.vsn_force_stopped) return true;
     try {
       if (sessionStorage.getItem("vsn_tab_force_stopped") === "true") return true;
-      const state = getTabFlowState();
-      if (!state || !state.isRunning) return true;
     } catch (e) {}
     return false;
   }
@@ -1378,17 +1376,17 @@
 
   async function setTabFlowState(state) {
     try {
-      if (isFlowForceStopped() || !state || !state.isRunning) {
+      if (!state || !state.isRunning) {
         sessionStorage.removeItem("vsn_tab_auto_flow");
-        sessionStorage.setItem("vsn_tab_force_stopped", "true");
         if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
           chrome.storage.local.set({
-            vsn_auto_flow: { isRunning: false, forceStopped: true, stoppedAt: Date.now() }
+            vsn_auto_flow: { isRunning: false, forceStopped: false }
           });
         }
       } else {
-        sessionStorage.setItem("vsn_tab_auto_flow", JSON.stringify(state));
+        window.vsn_force_stopped = false;
         sessionStorage.removeItem("vsn_tab_force_stopped");
+        sessionStorage.setItem("vsn_tab_auto_flow", JSON.stringify(state));
         if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
           chrome.storage.local.set({ vsn_auto_flow: state });
         }
@@ -2541,7 +2539,7 @@
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === "local" && changes.vsn_auto_flow) {
         const val = changes.vsn_auto_flow.newValue;
-        if (val && (val.isRunning === false || val.forceStopped)) {
+        if (val && val.forceStopped === true) {
           if (!window.vsn_force_stopped) {
             stopAutoDeleteFlow(false);
           }

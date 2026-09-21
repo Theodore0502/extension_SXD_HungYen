@@ -1413,6 +1413,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             addStepsLog(`▶️ [Auto] Bắt đầu tự động xóa cho ${parsedCodes.length} mã...`, 'info');
 
+            // Gỡ cờ dừng khẩn cấp trước khi khởi chạy
+            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                try {
+                    await chrome.storage.local.set({
+                        vsn_auto_flow: { isRunning: true, forceStopped: false }
+                    });
+                } catch (e) {}
+            }
+
             // Gửi lệnh tới content script
             const res = await sendMessageToActiveTab({ action: 'START_AUTO_FLOW', codes: parsedCodes });
             if (!res || !res.success) {

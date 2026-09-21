@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Vinasynet - Tự Động Rà Soát & Xóa Hồ Sơ Trùng Lặp",
-  "version": "1.1.39",
+  "version": "1.1.40",
   "description": "Tiện ích kiểm tra nhanh, kiểm tra hàng loạt và tự động xóa trùng hồ sơ lưu trữ Vinasynet theo quy trình 7 bước (Hỗ trợ Microsoft Edge Sidebar & Tự lưu dữ liệu).",
   "icons": {
     "16": "icons/icon16.png",
