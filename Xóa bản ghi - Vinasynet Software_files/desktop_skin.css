@@ -1,0 +1,125 @@
+﻿html {font-size:16px;}
+body {font-family:'Manrope',sans-serif;background:#f8f8f8;}
+/*login*/
+div.header {background:#09f;}
+div.header h1 {color:#e8e8e8;}
+div.footer {color:#c0c0c0;font-size:0.725rem;}
+div.footer > a {color:#c0c0c0;}
+div.footer > a:hover {color:#606060;}
+#LoginBox {font-size:0.75rem;}
+#Banner {border-bottom:1px solid #e8e8e8;}
+#Banner h1 {font-size:0.95rem;font-weight:600;}
+a.btn {color:#343a40;background:#f2f2f2 url('vsn_buttonbgNx40_toolbarmanager_10x600.jpg') repeat-x 0 0;font-size:0.75rem;}
+a.btn:hover {border:1px solid #343a40;}
+#Message {font-size:0.75rem;}
+td.form-label {font-size:0.75rem;}
+span.msg {color:#f00;}
+input.textbox {font-size:0.85rem;}
+/*page common*/
+#zMLHeader {background:#09f;}
+.LeftSidebar {min-width:200px;top:2.5rem;padding:0.5rem 0.25rem 0.5rem 0;background:#f8f8f8;}
+.zMLayout .vsncontainer {top:2.5rem;left:19%;width:80%;min-width:780px;}
+.vsncontainer div.defaultmaincontent {margin:40px 0 0 0;background:#fff no-repeat top center;}
+#zMLFooter {height:2rem;line-height:2rem;background:#404040;font-size:0.65rem;color:#999;}
+#zMLFooter > a {color:#999;}
+/*page scrollbar*/
+::-webkit-scrollbar {width:0.5rem;}
+::-webkit-scrollbar-track {background:#f2f2f2;}
+::-webkit-scrollbar-thumb {background:#e2e2e2;}
+::-webkit-scrollbar-thumb:hover {background:#c8c8c8;cursor:pointer;}
+.LeftSidebar::-webkit-scrollbar {width:0.125rem;}
+.LeftSidebar::-webkit-scrollbar-track {background:#f8f8f8;}
+.LeftSidebar::-webkit-scrollbar-thumb {background:#e8e8e8;}
+.LeftSidebar::-webkit-scrollbar-thumb:hover {background:#09f;}
+/*page header */
+.ctrlHeader > li > a.bactive {border:1px solid #ccc;font-weight:700;font-size:0.725rem;height:2rem;line-height:2rem;}
+.ctrlHeader > li > a.bactive:hover {border:1px solid #404040;}
+a.add {background:#4bc95b !important;color:#fff !important;}
+a.del {background:#e30505 !important;color:#fff !important;}
+a.oth {background:#04a4fc !important;color:#fff !important;}
+div.logonav > div.sckmenus {top:1rem;background:#fff;color:#404040;}
+div.logonav > div.sckmenus > a {color:#404040;font-size:0.75rem;}
+div.logonav:hover > div.sckmenus {display:block;}
+.ctrlHeader > li.logo > i {color:#606060;font-size:1rem;}
+.ctrlHeader > li.cmdbar > a.bactive > i {font-size:1rem;top:0.5rem;}
+/*page list tool */
+.listtools {height:2rem;background:#f2f2f2;border-top:1px solid #fff;border-bottom:2px solid #e0e0e0;}
+.listtools > li {font-size:0.75rem;}
+.listtools > li.tabmenus > a.tab {font-weight:700;font-size:0.75rem;color:#606060;border-left:1px solid #e8e8e8;}
+.listtools > li.tabmenus > a.selected {border-top:1px solid #fff;background:#09f !important;color:#fff;}
+.listtools > li.searchbar > input {height:1.15rem;border:1px solid #c9c9c9;background:#fff;}
+.listtools > li.searchbar > a.btnFilter {top:0;background:#066276;color:#fff;}
+.listtools > li.statusbar {width:10%;text-align:center;}
+.listtools > li.pagingbar {height:2rem;}
+.listtools > li.viewbar {height:2rem;color:#999;font-size:0.675rem !important;}
+.listtools > li.viewbar > a {color:#808080;}
+#ctrlpaging {border-top:1px solid #d0d0d0;border-bottom:none;}
+#ctrlpaging > .rightbar {text-align:right;color:#808080;font-size:0.65rem;}
+#ctrlpaging > .rightbar > a {text-decoration:none;color:#404040;}
+/*page grid container*/
+.gcontainer {height:500px;}
+.gcontainer::-webkit-scrollbar {width:0.25rem;}
+.gcontainer::-webkit-scrollbar-track {background:#d6d6d6;}
+.gcontainer::-webkit-scrollbar-thumb {background:#e0e0e0;}
+.gcontainer::-webkit-scrollbar-thumb:hover {background:#e0e0e0;cursor:pointer;}
+.gcontainer > table {border:1px solid #e8e8e8;background:#f2f2f2;}
+.gcontainer > table > tbody > tr:hover td {background:#ffc;}
+.gcontainer > table > tbody > tr > th {height:2rem;font-size:0.75rem;border:1px solid #e8e8e8;background:#f2f2f2 url('zmm_button10x600.jpg') 0 -6px repeat-x;border-bottom:1px solid #c9c9c9;}
+.gcontainer > table > tbody > tr > td {height:2rem;font-size:0.75rem;border:1px solid #e8e8e8;}
+a.gcmdButton {height:2.5rem;line-height:2.5rem;background:#f2f2f2 url('vsn_buttonbgNx40_toolbarmanager_10x600.jpg') 0 0 repeat-x;font-weight:bold;font-size:0.75rem;color:#035364;border:1px solid #d0d0d0;}
+.gcontainer > table tr > td > a {color:#404040;font-size:0.825rem;}
+.gcontainer > table tr > td > a:hover {color:#035364;}
+/*page update2021*/
+.gcontainer > table td.name > h1 {font-size:0.825rem;padding:0.375rem 0 0.25rem 0;}
+.gcontainer > table td.name > div.smenus {display:none;}
+.gcontainer > table td.name:hover > h1 {font-size:0.85rem;}
+.gcontainer > table td.name:hover > div.smenus {padding:0 0 0.5rem 0;}
+.gcontainer > table td.name:hover > div.smenus > a {color:#731606;}
+.gcontainer > table td.name:hover > div.smenus > a:hover {color:#c00;}
+/*page paging*/
+ul.zPaging > li {font-size:0.75rem;}
+ul.zPaging > li > a {width:1.25rem;height:1.5rem;line-height:1.5rem;color:#404040;}
+ul.zPaging > li > a:hover {background:#fff;}
+ul.zPaging > li.current {background:#e0e0e0;color:#222;}
+ul.zPaging > li.total {font-size:0.65rem;color:#808080;}
+/*page form*/
+.fMessage {color:#f00;font-size:0.85rem;height:2rem;line-height:2rem;}
+.fContainer {height:500px;}
+.fContainer > table {border:1px solid #e8e8e8;background:#f8f8f8;}
+.fContainer > table > tbody > tr {font-size:0.75rem;}
+.fContainer > table > tbody > tr > td {border:1px solid #f2f2f2;padding:0.25rem;height:2rem;}
+.fContainer td.head {font-size:0.8rem;border:1px solid #e8e8e8;}
+.fContainer::-webkit-scrollbar {width:0.25rem;}
+.fContainer::-webkit-scrollbar-track {background:#d6d6d6;}
+.fContainer::-webkit-scrollbar-thumb {background:#e0e0e0;}
+.fContainer::-webkit-scrollbar-thumb:hover {background:#e0e0e0;}
+td.control {background:#f8f8f8;}
+td.control > .textbox, td.control > .textboxselect, td.control > .dropdown {height:1.75rem;font-size:0.8rem;background:#f8f8f8;}
+td.control > .textboxselect {background:#f4f4f4;}
+td.control > img {max-width:240px;margin:0 0 1px 0;border:1px solid #000;}
+td.control > img.icon {width:40px;background:#035364;}
+td.info > i {font-size:1rem;color:#999;}
+.fButton {height:2rem;line-height:2rem;margin:10px 0 0 0;}
+.fButton > input {width:150px;height:2rem;}
+.fButton > input:hover {outline:1px solid #035364;}
+.fDeleteContainer {height:500px;}
+.fDeleteContainer > h1 {font-size:0.8rem;}
+.fDeleteContainer > h2 {font-size:0.8rem;color:#e00;}
+.fDeleteContainer > span {font-size:0.8rem;}
+.fDeleteContainer > table {border:1px solid #d0d0d0;background:#efefef;}
+.fDeleteContainer > table tr th, .fDeleteContainer > table tr td {border:1px solid #d0d0d0;font-size:0.825rem;padding:0.5rem;}
+.fDeleteContainer > table tr td.stt {width:2rem;text-align:center;}
+.fDeleteContainer > table tr td.tt {width:6rem;text-align:center;}
+.fDeleteContainer::-webkit-scrollbar {width:0.25rem;}
+.fDeleteContainer::-webkit-scrollbar-track {background:#d6d6d6;}
+.fDeleteContainer::-webkit-scrollbar-thumb {background:#e0e0e0;}
+.fDeleteContainer::-webkit-scrollbar-thumb:hover {background:#e0e0e0;}
+#fmessage {background:#f2f2f2;}
+/*page view detail */
+.fContainer > table td.col0 {font-size:0.75rem;padding:0.25rem;}
+.fContainer > table td.col1, .fContainer > table td.col2 {font-size:0.75rem;height:1.375rem;line-height:22px;padding:0.25rem;}
+/* dialog */
+div.vsndialogs {position:absolute;width:600px;height:400px;left:0;top:0;z-index:999999999999;background:#e8e8e8;border:2px solid #066276;display:none;overflow:hidden;}
+div.vsndialogs > h1.dlgHeader {float:left;position:relative;width:93.99%;height:30px;line-height:30px;font-size:1em;background:#066276;color:#fff;margin:0 0 5px 0;padding:0 0 0 1%;}
+div.vsndialogs > a.dlgCloseButton {float:left;position:relative;width:4%;height:30px;line-height:30px;font-size:1em;background:#066276;color:#fff;text-align:right;padding:0 1% 0 0;}
+div.vsnbggray {position:absolute;width:3000px;height:5000px;left:-10px;top:-10px;z-index:999999999998;background:#000;display:block;opacity:0.6;filter:alpha(opacity=60);}

@@ -1,0 +1,33 @@
+﻿function ImageLinkClose() {
+    vsnCloseDialogBox("dialogImageLinks");
+}
+function AttachLinkClose() {
+    vsnCloseDialogBox("dialogAttachLinks");
+}
+function SystemUrlClose() {
+    vsnCloseDialogBox("dialogSystemUrl");
+}
+function ImageSourceEditorClose() {
+    vsnCloseDialogBox("dialogImageSourceEditor");
+}
+function AttachSourceEditorClose() {
+    vsnCloseDialogBox("dialogFileSourceForEditor");
+}
+window.VsnGetImageLink = function (sImageLink, txt, imgPreview) {
+    let elmTextbox = document.getElementById(txt); if (!elmTextbox) return;
+    let elmImagePreview = document.getElementById(imgPreview); if (!elmImagePreview) return;
+    let imgUrl = vsnSiteDomain + "/" + sImageLink;
+    elmTextbox.value = imgUrl;
+    elmImagePreview.setAttribute("src", imgUrl);
+    ImageLinkClose();
+}
+window.VsnGetAttachLink = function (sAttachLink, txt) {
+    let elmTextbox = document.getElementById(txt); if (!elmTextbox) return;
+    elmTextbox.value = sAttachLink;
+    AttachLinkClose();
+}
+window.VsnGetSystemUrl = function (sUrl, txt) {
+    let elmTextbox = document.getElementById(txt); if (!elmTextbox) return;
+    elmTextbox.value = sUrl;
+    SystemUrlClose();
+}

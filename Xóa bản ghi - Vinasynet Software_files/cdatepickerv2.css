@@ -1,0 +1,13 @@
+﻿/*v2*/
+div.cdpPanel {float:left;position:absolute;width:12.5rem;height:220px;top:0;left:0;overflow-x:hidden;border:1px solid #808080;font-family:Tahoma;font-size:12px;z-index:999999999999 !important;}
+div.cdpPanel > table {border:1px solid #e8e8e8;border-collapse:collapse;width:100%;background:#f2f2f2;}
+div.cdpPanel > table.header {border:none;}
+div.cdpPanel > table.header td {padding:0.25rem;background:#e8e8e8;width:33.33%;}
+div.cdpPanel > table.header .xbar {text-align:right;}
+div.cdpPanel > table.header .xbar > a {text-decoration:none;color:#606060;}
+div.cdpPanel > table.header .caption {text-align:left;color:#808080;font-weight:bold;font-size:11px;}
+div.cdpPanel > table th {padding:6px 3px;font-weight:bold;background:#e8e8e8;border:1px solid #e8e8e8;}
+div.cdpPanel > table td {padding:4px;text-align:center;cursor:pointer;border:1px solid #e8e8e8;}
+div.cdpPanel > table td.curr {background:#808080;color:#fff;}
+div.cdpPanel > table td.othm {color:#999;cursor:not-allowed;}
+div.cdpPanel > table td select {border:none;}

@@ -1,0 +1,810 @@
+/* ========================================================================= */
+/* --- POPUP CSS: PHẲNG SÁNG, KHÔNG BORDER RADIUS, ZERO-GAP, KHÔNG GRADIENT --- */
+/* ========================================================================= */
+
+:root {
+    --primary: #4f46e5;          /* Indigo đậm sang trọng */
+    --primary-hover: #4338ca;
+    --primary-light: #e0e7ff;
+    --primary-text: #3730a3;
+    
+    --bg-main: #ffffff;          /* Nền sáng tinh khiết */
+    --bg-secondary: #f8fafc;     /* Nền phân khu vực / header */
+    --bg-subtle: #f1f5f9;        /* Nền hover / bar */
+    --bg-card: #ffffff;
+    
+    --text-main: #0f172a;        /* Chữ đậm sắc nét, dễ đọc */
+    --text-muted: #64748b;       /* Chữ phụ */
+    --text-sub: #475569;
+    
+    --border-color: #cbd5e1;     /* Viền kẻ ngăn cách chuẩn mực */
+    --border-dark: #94a3b8;      /* Viền đậm hơn cho input/nút */
+    
+    --success: #16a34a;          /* Màu solid phẳng, không gradient */
+    --success-bg: #dcfce7;
+    --success-text: #15803d;
+    
+    --danger: #dc2626;
+    --danger-bg: #fee2e2;
+    --danger-text: #b91c1c;
+    
+    --warning: #d97706;
+    --warning-bg: #fef3c7;
+    --warning-text: #b45309;
+    
+    --radius: 0px !important;    /* TUYỆT ĐỐI KHÔNG BORDER RADIUS */
+}
+
+/* Reset toàn diện & Bắt buộc 0 Border Radius ở mọi nơi */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border-radius: 0 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    width: 100%;
+    min-width: 320px;
+    max-width: 100vw;
+    min-height: 520px;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-size: 12.5px;
+    line-height: 1.4;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+@media (min-width: 600px) and (max-height: 600px) {
+    body {
+        width: 780px;
+    }
+}
+
+/* Khung tổng thể: Xếp liền khối, không khoảng cách thừa giữa các component */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    gap: 0;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-main);
+}
+
+/* ========================================================================= */
+/* --- 1. LƯỚI NÚT OPTIONS TRÊN ĐỈNH (DẠNG LƯỚI 2x2: 1 1 / 1 1) --- */
+/* ========================================================================= */
+.top-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.top-options-grid .btn {
+    border: none;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    background-color: #ffffff;
+    color: #334155;
+    justify-content: flex-start;
+    height: 36px;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.top-options-grid .btn:hover {
+    background-color: var(--bg-subtle);
+    color: var(--text-main);
+}
+
+.top-options-grid .btn:nth-child(2n) {
+    border-right: none;
+}
+
+.top-options-grid .btn:nth-child(3),
+.top-options-grid .btn:nth-child(4) {
+    border-bottom: none;
+}
+
+/* ========================================================================= */
+/* --- 2. THANH ĐIỀU HƯỚNG 4 TABS (DẠNG LƯỚI 2x2: 1 1 / 1 1) --- */
+/* ========================================================================= */
+.tab-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+    padding: 9px 12px;
+    background-color: var(--bg-secondary);
+    color: var(--text-muted);
+    border: none;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.15s, color 0.15s;
+    user-select: none;
+    height: 38px;
+}
+
+.tab-btn:hover {
+    background-color: var(--bg-subtle);
+    color: var(--text-main);
+}
+
+.tab-btn:nth-child(2n) {
+    border-right: none;
+}
+
+.tab-btn:nth-child(3),
+.tab-btn:nth-child(4) {
+    border-bottom: none;
+}
+
+.tab-btn.active {
+    background-color: #ffffff;
+    color: var(--primary);
+    box-shadow: inset 0 -2px 0 var(--primary);
+}
+
+/* ========================================================================= */
+/* --- 3. NỘI DUNG TABS & THẺ CARD LIỀN MẠCH (ZERO GAP) --- */
+/* ========================================================================= */
+.tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+.card {
+    background-color: #ffffff;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Label & Input Controls */
+.input-label, .steps-main-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.text-input {
+    width: 100%;
+    padding: 7px 10px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-dark);
+    color: var(--text-main);
+    font-size: 12px;
+    outline: none;
+}
+
+.text-input:focus {
+    border-color: var(--primary);
+}
+
+/* TEXTAREA: Cho phép người dùng KÉO DÀI / KÉO NGẮN tùy thích */
+.textarea-input, .steps-textarea {
+    width: 100%;
+    min-height: 70px;
+    height: 110px;
+    max-height: 800px;
+    padding: 8px 10px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-dark);
+    color: var(--text-main);
+    font-size: 12px;
+    outline: none;
+    resize: vertical !important;
+    overflow-y: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    line-height: 1.45;
+}
+
+.textarea-input:focus, .steps-textarea:focus {
+    border-color: var(--primary);
+}
+
+.hint-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    padding: 5px 8px;
+    background-color: #f8fafc;
+    border-left: 3px solid var(--primary);
+}
+
+/* ========================================================================= */
+/* --- 4. HỆ THỐNG NÚT BẤM (FLAT BUTTONS, SOLID COLORS) --- */
+/* ========================================================================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background-color: var(--primary);
+    color: #ffffff;
+    transition: background-color 0.15s;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #cbd5e1;
+    color: #64748b;
+    border-color: #cbd5e1;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: #ffffff;
+}
+
+.btn-secondary, .btn-glass {
+    background-color: #ffffff;
+    border: 1px solid var(--border-dark);
+    color: var(--text-sub);
+}
+
+.btn-secondary:hover:not(:disabled), .btn-glass:hover:not(:disabled) {
+    background-color: var(--bg-subtle);
+    color: var(--text-main);
+    border-color: var(--text-main);
+}
+
+.btn-success {
+    background-color: var(--success);
+    color: #ffffff;
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: #15803d;
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #b91c1c;
+}
+
+.btn-ghost {
+    background-color: transparent;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background-color: var(--bg-subtle);
+    color: var(--text-main);
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+/* ========================================================================= */
+/* --- 5. BATCH HEADER & CONTROLS --- */
+/* ========================================================================= */
+.batch-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+}
+
+.batch-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 4px;
+    border-top: 1px solid var(--border-color);
+}
+
+.batch-summary-info {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--primary-text);
+    background-color: var(--primary-light);
+    padding: 3px 8px;
+    border: 1px solid var(--border-color);
+}
+
+.batch-btn-group {
+    display: flex;
+    gap: 4px;
+}
+
+/* ========================================================================= */
+/* --- 6. ⚡ QUY TRÌNH 5 BƯỚC TỐI GIẢN (KHÔNG ICON, CHỈ SỐ VÀ TEXT) --- */
+/* ========================================================================= */
+.steps-pipeline-simple {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border-color);
+    background-color: #ffffff;
+    margin-top: 4px;
+}
+
+.steps-pipeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pipeline-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.pipeline-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* Lưới 5 nút bước: 1 hàng 5 cột, không icon, bấm cái nào thì sáng cái đó */
+.steps-5grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    background-color: var(--border-color);
+}
+
+.step-btn-simple {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 2px 7px 2px;
+    background-color: #ffffff;
+    color: var(--text-main);
+    border: none;
+    border-right: 1px solid var(--border-color);
+    cursor: pointer;
+    text-align: center;
+    user-select: none;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.step-btn-simple:last-child {
+    border-right: none;
+}
+
+.step-btn-simple:hover {
+    background-color: var(--bg-subtle);
+}
+
+.step-num {
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--primary);
+    line-height: 1;
+    margin-bottom: 3px;
+}
+
+.step-name {
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--text-main);
+}
+
+/* ĐẾN BƯỚC NÀO THÌ SÁNG RỰC LÊN THEO YÊU CẦU */
+.step-btn-simple.step-active {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+}
+
+.step-btn-simple.step-active .step-num {
+    color: #ffffff !important;
+}
+
+.step-btn-simple.step-active .step-name {
+    color: #ffffff !important;
+}
+
+/* ========================================================================= */
+/* --- 7. KHU VỰC TỰ ĐỘNG XÓA (FLAT ACTIONS) --- */
+/* ========================================================================= */
+.steps-auto-box {
+    padding: 8px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.steps-auto-bar {
+    display: flex;
+    gap: 4px;
+    align-items: stretch;
+}
+
+.btn-auto-run {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background-color: var(--primary);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.btn-auto-run:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+
+.btn-auto-stop {
+    padding: 10px 16px;
+    background-color: var(--danger);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.btn-auto-stop:hover:not(:disabled) {
+    background-color: #b91c1c;
+}
+
+.btn-auto-stop:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    background-color: #cbd5e1;
+    color: #64748b;
+}
+
+.esc-hint {
+    font-size: 9px;
+    background-color: rgba(0, 0, 0, 0.25);
+    padding: 1px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+/* Tiến độ Progress */
+.progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 6px 8px;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.progress-bar-bg {
+    width: 100%;
+    height: 7px;
+    background-color: #e2e8f0;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--primary);
+    transition: width 0.2s ease;
+}
+
+/* ========================================================================= */
+/* --- 8. BẢNG KẾT QUẢ XỬ LÝ & NÚT TẢI CSV --- */
+/* ========================================================================= */
+.steps-results-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    background-color: #ffffff;
+}
+
+.steps-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.results-header-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.results-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.results-badge {
+    background-color: #ffffff;
+    border: 1px solid var(--border-dark);
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 5px;
+}
+
+.results-header-right {
+    display: flex;
+    gap: 4px;
+}
+
+.table-wrapper {
+    max-height: 240px;
+    overflow-y: auto;
+    background-color: #ffffff;
+}
+
+.batch-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    text-align: left;
+}
+
+.batch-table th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-secondary);
+    color: var(--text-sub);
+    font-weight: 700;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border-dark);
+    border-right: 1px solid var(--border-color);
+    white-space: nowrap;
+    z-index: 1;
+}
+
+.batch-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-size: 11px;
+}
+
+.batch-table tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ========================================================================= */
+/* --- 9. TERMINAL CONSOLE LOGS --- */
+/* ========================================================================= */
+.steps-log-container {
+    background-color: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.steps-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.terminal-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background-color: #cbd5e1;
+    display: inline-block;
+}
+
+.terminal-title {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-sub);
+}
+
+.steps-log-box {
+    max-height: 90px;
+    overflow-y: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10.5px;
+    line-height: 1.4;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 4px 6px;
+    color: var(--text-main);
+}
+
+.steps-log-line {
+    padding: 1px 0;
+    word-break: break-all;
+}
+
+.steps-log-line.info { color: #2563eb; }
+.steps-log-line.success { color: #16a34a; }
+.steps-log-line.warning { color: #d97706; }
+.steps-log-line.error { color: #dc2626; }
+
+/* ========================================================================= */
+/* --- 10. STATS BARS & BADGES --- */
+/* ========================================================================= */
+.batch-stats-bar {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+.stat-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 4px;
+    border-right: 1px solid var(--border-color);
+}
+
+.stat-count {
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.stat-title {
+    font-size: 9.5px;
+    color: var(--text-muted);
+}
+
+.stat-item.exist .stat-count { color: var(--success); }
+.stat-item.not-exist .stat-count { color: var(--warning); }
+.stat-item.error .stat-count { color: var(--danger); }
+
+.export-btn {
+    border: none;
+    height: 100%;
+    padding: 0 12px;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.badge-zero { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+.badge-match { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+.badge-mismatch { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+.badge-exist { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.badge-dup { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+.badge-error { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
+/* Single check */
+.single-check-section {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group {
+    display: flex;
+    gap: 0;
+}
+
+.input-group .text-input {
+    border-right: none;
+}
+
+.result-box {
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 14px;
+    background-color: var(--bg-secondary);
+}
+
+/* Footer */
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.footer-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.ver-tag {
+    background-color: #ffffff;
+    border: 1px solid var(--border-dark);
+    color: var(--primary-text);
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 800;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}

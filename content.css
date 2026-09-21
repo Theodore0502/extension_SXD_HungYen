@@ -1,0 +1,798 @@
+/* ========================================================================= */
+/* --- CONTENT CSS: WIDGET NỔI PHẲNG SÁNG (LIGHT FLAT - ZERO RADIUS) --- */
+/* ========================================================================= */
+
+#auto-uploader-widget {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 92vh;
+  z-index: 2147483647;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  color: #0f172a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0 !important;
+  transition: width 0.2s ease, height 0.2s ease;
+}
+
+#auto-uploader-widget *,
+#auto-uploader-widget *::before,
+#auto-uploader-widget *::after {
+  box-sizing: border-box;
+  border-radius: 0 !important; /* TUYỆT ĐỐI KHÔNG BORDER RADIUS */
+}
+
+#auto-uploader-widget.collapsed {
+  height: 44px !important;
+  width: 300px !important;
+}
+
+#auto-uploader-widget.collapsed #auto-uploader-body,
+#auto-uploader-widget.collapsed .widget-tabs {
+  display: none !important;
+}
+
+/* Header Kéo Thả (Flat Light Header, Không Gradient) */
+#auto-uploader-header {
+  padding: 10px 14px;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: move;
+  user-select: none;
+  gap: 0;
+}
+
+.widget-title-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.widget-badge {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  font-size: 10px;
+  padding: 2px 6px;
+  font-weight: 700;
+}
+
+.widget-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon-btn {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 13px;
+  transition: background-color 0.15s;
+}
+
+.icon-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+/* ========================================================================= */
+/* --- 2. THANH NAVIGATION TABS (SEAMLESS STRIP, NO GAP) --- */
+/* ========================================================================= */
+.widget-tabs {
+  display: flex;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0;
+  gap: 0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 9px 8px;
+  background-color: #f8fafc;
+  border: none;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.tab-btn.active {
+  background-color: #ffffff;
+  color: #4338ca;
+  font-weight: 700;
+  border-bottom: 2px solid #6366f1;
+}
+
+/* ========================================================================= */
+/* --- 3. WIDGET BODY & CÁC PANEL LIỀN MẠCH (ZERO GAP) --- */
+/* ========================================================================= */
+#auto-uploader-body {
+  padding: 0;
+  background-color: #ffffff;
+  overflow-y: auto;
+  max-height: calc(92vh - 85px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background-color: #ffffff;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+/* Step Card: Không margin, không border-radius, chỉ viền dưới ngăn cách */
+.step-card {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.step-card-title {
+  font-weight: 700;
+  font-size: 12px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Inputs & Textareas */
+.uploader-input {
+  width: 100%;
+  padding: 7px 10px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  font-size: 12px;
+  outline: none;
+  box-shadow: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.uploader-input:focus {
+  border-color: #6366f1;
+}
+
+/* Action Buttons (Solid Colors, No Gradient) */
+.action-btn {
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background-color 0.15s;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background-color: #6366f1;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #4f46e5;
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.btn-grid {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-grid .action-btn {
+  flex: 1;
+}
+
+/* Tab 1: Stats Grid (Liền kề, Zero Gap) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  background-color: #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.stat-item {
+  background-color: #f8fafc;
+  padding: 6px 4px;
+  text-align: center;
+  border-right: 1px solid #e2e8f0;
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-num {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 9.5px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.stat-total { color: #0f172a; }
+.stat-exist { color: #16a34a; }
+.stat-dup { color: #d97706; }
+.stat-error { color: #dc2626; }
+
+/* Tab 1: Progress Box */
+.progress-box {
+  background-color: #f8fafc;
+  padding: 8px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 7px;
+  background-color: #e2e8f0;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #6366f1;
+  transition: width 0.2s ease;
+}
+
+/* Tab 1: Table Container & Scan Table */
+.table-container {
+  max-height: 180px;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.scan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  text-align: left;
+}
+
+.scan-table th {
+  position: sticky;
+  top: 0;
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  z-index: 1;
+}
+
+.scan-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.scan-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* ========================================================================= */
+/* --- 4. THẺ MÃ ĐANG CHỌN (HERO ACTIVE CARD - PHẲNG, SÁNG, GỌN) --- */
+/* ========================================================================= */
+.steps-current-card-ergo {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.steps-code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 6px 10px;
+  gap: 8px;
+}
+
+.steps-code-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #4338ca;
+  letter-spacing: 0.3px;
+  word-break: break-all;
+}
+
+.btn-copy-code {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.btn-copy-code:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  background-color: #16a34a;
+  display: inline-block;
+}
+
+/* ========================================================================= */
+/* --- 5. CHUỖI PIPELINE & LƯỚI 5 BƯỚC (ZERO GAP, SEAMLESS STRIP) --- */
+/* ========================================================================= */
+.steps-pipeline-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 6px 10px;
+  font-size: 10.5px;
+  color: #64748b;
+  margin-bottom: 6px;
+  gap: 0;
+}
+
+.pipeline-node {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.pipeline-node.active {
+  color: #4338ca;
+  font-weight: 700;
+}
+
+.pipeline-node-num {
+  width: 15px;
+  height: 15px;
+  background-color: #cbd5e1;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.pipeline-node.active .pipeline-node-num {
+  background-color: #6366f1;
+  color: #ffffff;
+}
+
+.pipeline-sep {
+  color: #cbd5e1;
+  font-size: 9px;
+}
+
+/* 5 Step Buttons Grid: Xếp liền sát nhau không có gap */
+.steps-7grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  background-color: #e2e8f0;
+  border: 1px solid #e2e8f0;
+  margin: 4px 0;
+}
+
+.step-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 2px 7px 2px;
+  background-color: #ffffff;
+  border: none;
+  border-right: 1px solid #e2e8f0;
+  color: #0f172a;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.15s;
+  user-select: none;
+}
+
+.step-btn:last-child {
+  border-right: none;
+}
+
+.step-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.step-btn.step-active {
+  background-color: #eff6ff !important;
+  outline: 2px solid #6366f1 !important;
+  outline-offset: -2px;
+  z-index: 2;
+}
+
+.step-btn .step-badge {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 3px;
+  line-height: 1;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.step-btn .step-icon {
+  font-size: 15px;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+.step-btn .step-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #0f172a;
+}
+
+/* ========================================================================= */
+/* --- 6. NÚT BẮT ĐẦU TỰ ĐỘNG XÓA (SOLID FLAT ACTIONS, NO GRADIENT) --- */
+/* ========================================================================= */
+.btn-auto-run-ergo {
+  height: 38px;
+  background-color: #6366f1;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: none;
+  transition: background-color 0.15s;
+  letter-spacing: 0.2px;
+}
+
+.btn-auto-run-ergo:hover:not(:disabled) {
+  background-color: #4f46e5;
+}
+
+.btn-auto-stop-ergo {
+  height: 38px;
+  min-width: 90px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background-color 0.15s;
+  box-shadow: none;
+}
+
+.btn-auto-stop-ergo:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.btn-auto-stop-ergo:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background-color: #cbd5e1;
+  color: #64748b;
+}
+
+.esc-hint {
+  font-size: 9px;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 1px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* ========================================================================= */
+/* --- 7. BẢNG DỮ LIỆU & BẢNG TIẾN ĐỘ SCAN (LIGHT SEAMLESS TABLE) --- */
+/* ========================================================================= */
+.uploader-table-wrapper {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+}
+
+.uploader-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  text-align: left;
+}
+
+.uploader-table th {
+  position: sticky;
+  top: 0;
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  z-index: 1;
+}
+
+.uploader-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.uploader-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Progress & Stats */
+.scan-progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8f0;
+  overflow: hidden;
+}
+
+.scan-progress-bar-inner {
+  height: 100%;
+  background-color: #6366f1;
+  transition: width 0.2s ease;
+}
+
+.stats-grid-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  background-color: #e2e8f0;
+  border: 1px solid #e2e8f0;
+}
+
+.stat-box {
+  background-color: #f8fafc;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #e2e8f0;
+}
+
+.stat-box:last-child {
+  border-right: none;
+}
+
+.stat-num {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.stat-lbl {
+  font-size: 9.5px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.stat-zero { color: #16a34a; }
+.stat-match { color: #2563eb; }
+.stat-mismatch { color: #d97706; }
+
+/* ========================================================================= */
+/* --- 8. BADGES TRẠNG THÁI (SOLID FLAT BADGES) --- */
+/* ========================================================================= */
+.badge {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.badge-zero {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.badge-match {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.badge-mismatch {
+  background-color: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.badge-exist {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.badge-dup {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.badge-error {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* ========================================================================= */
+/* --- 9. TERMINAL LOGS BOX (LIGHT FLAT CONSOLE) --- */
+/* ========================================================================= */
+.logs-box {
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 8px;
+  height: 130px;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #0f172a;
+}
+
+.log-entry {
+  color: #334155;
+  word-break: break-all;
+}
+
+.log-entry.info { color: #2563eb; }
+.log-entry.success { color: #16a34a; }
+.log-entry.warning { color: #d97706; }
+.log-entry.error { color: #dc2626; }
+
+/* ========================================================================= */
+/* --- 10. BANNER TOAST Ở ĐỈNH TRANG (FLAT CRISP NOTIFICATION) --- */
+/* ========================================================================= */
+#vsn-web-toast {
+  position: fixed;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 8px 18px;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  white-space: nowrap;
+  border-radius: 0 !important;
+}
+
+/* Highlight pulse trên DOM web */
+.auto-uploader-highlight-pulse {
+  outline: 3px solid #6366f1 !important;
+  border-radius: 0 !important;
+}

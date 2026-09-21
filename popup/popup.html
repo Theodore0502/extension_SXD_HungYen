@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm tra Mã Hồ Sơ Lưu Trữ</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Khối 4 Nút Options (Lưới 2x2: 1 1 / 1 1) -->
+        <div class="top-options-grid">
+            <button id="btnOpenFloatingWindow" class="btn btn-secondary btn-sm" title="Mở thành cửa sổ popup nổi độc lập, có thể kéo thả di chuyển tự do khắp màn hình">
+                🪟 Cửa sổ nổi
+            </button>
+            <button id="btnOpenSidePanel" class="btn btn-secondary btn-sm" title="Ghim extension vào Thanh Bên của Microsoft Edge (Side Panel) để vừa lướt web vừa bấm không bao giờ bị tắt">
+                📌 Thanh bên Edge
+            </button>
+            <button id="btnOpenFullTab" class="btn btn-secondary btn-sm" title="Mở trong thẻ mới để xem toàn màn hình rộng rãi">
+                🖥️ Mở Tab Lớn
+            </button>
+            <button id="btnTopExportCSV" class="btn btn-secondary btn-sm" title="Tải nhanh toàn bộ Báo cáo kết quả CSV về máy">
+                📊 Tải Báo Cáo CSV
+            </button>
+        </div>
+
+        <!-- Thanh Điều Hướng 4 Tabs (Lưới 2x2: 1 1 / 1 1) -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="singleTab" id="tabBtnSingle">
+                <span class="icon">🔍</span> Kiểm tra nhanh
+            </button>
+            <button class="tab-btn" data-tab="batchTab" id="tabBtnBatch">
+                <span class="icon">📋</span> Kiểm tra hàng loạt <span class="badge-new" id="batchBadgeCount" style="display:none;">0</span>
+            </button>
+            <button class="tab-btn" data-tab="deleteTab" id="tabBtnDelete" style="color:#dc2626;">
+                <span class="icon">🗑️</span> Xóa trùng hàng loạt
+            </button>
+            <button class="tab-btn" data-tab="stepsTab" id="tabBtnSteps" style="color:#4f46e5; font-weight:700;">
+                <span class="icon">🕹️</span> Quy trình các bước
+            </button>
+        </nav>
+
+        <!-- Tab Content 1: Single Check -->
+        <section id="singleTab" class="tab-content active">
+            <div class="card search-card">
+                <label for="singleInput" class="input-label">Nhập Ký hiệu hoặc Mã hệ thống:</label>
+                <div class="input-group">
+                    <input type="text" id="singleInput" class="text-input" placeholder="VD: H31.05.02... hoặc H31.09.2014.046301" autofocus>
+                    <button id="btnSingleCheck" class="btn btn-primary">
+                        <span class="btn-text">Kiểm tra</span>
+                        <span class="btn-spinner" style="display:none;">⏳</span>
+                    </button>
+                </div>
+                <div class="hint-text">Mẹo: Hỗ trợ nhấn <b>Enter</b> để kiểm tra ngay.</div>
+            </div>
+
+            <!-- Single Result Container -->
+            <div id="singleResultContainer" class="result-box" style="display: none;">
+                <!-- Filled dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- Tab Content 2: Batch Check -->
+        <section id="batchTab" class="tab-content">
+            <div class="card batch-card">
+                <div class="batch-header-actions">
+                    <label for="batchTextarea" class="input-label">Dán danh sách mã (mỗi dòng 1 mã):</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="batchFileInput" accept=".txt,.csv,.xlsx,.xls" style="display:none;">
+                        <button type="button" id="btnImportFile" class="btn btn-secondary btn-sm">
+                            📁 Nhập từ file (.txt / .csv)
+                        </button>
+                    </div>
+                </div>
+
+                <textarea id="batchTextarea" class="textarea-input" rows="5" placeholder="H31.05.02.H31.09.2014.743&#10;H31.09.2014.046300&#10;H31.05.02.H31.09.2014.745&#10;..."></textarea>
+                <div class="hint-text" style="color:#4338ca;font-size:11px;margin-top:4px;">
+                    💡 <b>Mẹo chạy ngầm:</b> Nhấn nút <b>"🖥️ Mở Tab Lớn"</b> ở góc trên để tiện ích chạy ở thẻ riêng. Bạn có thể sang các tab khác làm việc bình thường mà tiến trình quét vẫn diễn ra ngầm!
+                </div>
+                
+                <div class="batch-controls">
+                    <div class="batch-summary-info">
+                        <span id="batchTotalCount">0</span> mã cần tra
+                    </div>
+                    <div class="batch-btn-group">
+                        <button id="btnClearBatch" class="btn btn-ghost btn-sm">Xóa</button>
+                        <button id="btnStartBatch" class="btn btn-primary">
+                            <span>🚀 Bắt đầu quét</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch Progress -->
+            <div id="batchProgressWrapper" class="progress-section" style="display: none;">
+                <div class="progress-labels">
+                    <span id="progressText">Đang kiểm tra: 0/0</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progressBarFill" class="progress-bar-fill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-actions">
+                    <button id="btnStopBatch" class="btn btn-danger btn-sm">Dừng lại</button>
+                </div>
+            </div>
+
+            <!-- Batch Stats & Export Bar -->
+            <div id="batchStatsBar" class="batch-stats-bar" style="display: none;">
+                <div class="stat-item exist">
+                    <span class="stat-count" id="statExist">0</span>
+                    <span class="stat-title">Đã tồn tại</span>
+                </div>
+                <div class="stat-item not-exist">
+                    <span class="stat-count" id="statNotExist">0</span>
+                    <span class="stat-title">Chưa có</span>
+                </div>
+                <div class="stat-item error">
+                    <span class="stat-count" id="statError">0</span>
+                    <span class="stat-title">Lỗi</span>
+                </div>
+                <button id="btnExportCSV" class="btn btn-success btn-sm export-btn">
+                    📊 Xuất CSV
+                </button>
+            </div>
+
+            <!-- Batch Results Table -->
+            <div id="batchTableWrapper" class="table-wrapper" style="display: none;">
+                <table class="batch-table">
+                    <thead>
+                        <tr>
+                            <th width="40">STT</th>
+                            <th>Mã cần tra</th>
+                            <th width="110">Trạng thái</th>
+                            <th>Chi tiết kết quả (Tiêu đề / Số lượng)</th>
+                            <th width="50">Xem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batchTableBody">
+                        <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tab Content 3: Bulk Duplicate Deletion -->
+        <section id="deleteTab" class="tab-content">
+            <div class="card batch-card">
+                <div class="batch-header-actions">
+                    <label for="deleteTextarea" class="input-label">Danh sách mã CẦN XÓA BẢN TRÙNG THỪA:</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="deleteFileInput" accept=".txt,.csv,.xlsx,.xls" style="display:none;">
+                        <button type="button" id="btnImportDeleteFile" class="btn btn-secondary btn-sm">
+                            📁 Nhập file (.txt / .csv)
+                        </button>
+                    </div>
+                </div>
+
+                <textarea id="deleteTextarea" class="textarea-input" rows="5" placeholder="H31.05.02.H31.09.2014.548&#10;H31.05.02.H31.09.2014.547&#10;..."></textarea>
+                
+                <div class="hint-text" style="color: #dc2626; border-left-color: #dc2626;">
+                    ⚠️ <b>Cơ chế an toàn:</b> Hệ thống sẽ quét từng mã, <b>giữ lại 1 bản duy nhất (#1)</b> và tự động xóa bỏ các bản trùng thừa còn lại.
+                </div>
+
+                <div class="batch-controls">
+                    <div class="batch-summary-info">
+                        <span id="deleteTotalCount">0</span> mã xử lý
+                    </div>
+                    <div class="batch-btn-group">
+                        <button id="btnClearDelete" class="btn btn-ghost btn-sm">Xóa danh sách</button>
+                        <button id="btnStartDelete" class="btn btn-danger">
+                            <span>🗑️ Bắt đầu xóa trùng</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Progress -->
+            <div id="deleteProgressWrapper" class="progress-section" style="display: none;">
+                <div class="progress-labels">
+                    <span id="deleteProgressText">Đang xử lý xóa: 0/0</span>
+                    <span id="deleteProgressPercent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="deleteProgressBarFill" class="progress-bar-fill" style="width: 0%; background: #dc2626;"></div>
+                </div>
+                <div class="progress-actions">
+                    <button id="btnStopDelete" class="btn btn-danger btn-sm">Dừng lại</button>
+                </div>
+            </div>
+
+            <!-- Delete Stats Bar -->
+            <div id="deleteStatsBar" class="batch-stats-bar" style="display: none;">
+                <div class="stat-item exist">
+                    <span class="stat-count" id="statKept">0</span>
+                    <span class="stat-title">Đã giữ lại</span>
+                </div>
+                <div class="stat-item not-exist">
+                    <span class="stat-count" id="statDeleted">0</span>
+                    <span class="stat-title">Bản ghi đã xóa</span>
+                </div>
+                <div class="stat-item error">
+                    <span class="stat-count" id="statDeleteSkipped">0</span>
+                    <span class="stat-title">Bỏ qua / Lỗi</span>
+                </div>
+                <button id="btnExportDeleteCSV" class="btn btn-success btn-sm export-btn">
+                    📊 Báo Cáo Xóa CSV
+                </button>
+            </div>
+
+            <!-- Delete Results Table -->
+            <div id="deleteTableWrapper" class="table-wrapper" style="display: none;">
+                <table class="batch-table">
+                    <thead>
+                        <tr>
+                            <th width="40">STT</th>
+                            <th>Mã xử lý</th>
+                            <th width="120">Trạng thái</th>
+                            <th>Bản ghi Giữ lại (#1)</th>
+                            <th>Các bản trùng ĐÃ XÓA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deleteTableBody">
+                        <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tab Content 4: Interactive Steps Deletion (Quy trình các bước) -->
+        <section id="stepsTab" class="tab-content">
+            <div class="card steps-card">
+                <div class="batch-header-actions">
+                    <label for="stepsTextarea" class="input-label steps-main-label">
+                        <span class="label-icon">📝</span>
+                        <span>Danh Sách Mã Xử Lý Theo Quy Trình</span>
+                    </label>
+                    <div class="file-upload-wrapper" style="display:flex; gap:4px; align-items:center;">
+                        <input type="file" id="stepsFileInput" accept=".txt,.csv,.xlsx,.xls" style="display:none;">
+                        <button type="button" id="btnPasteStepsList" class="btn btn-secondary btn-sm btn-glass" title="Dán nhanh nội dung từ Clipboard">
+                            📋 Dán
+                        </button>
+                        <button type="button" id="btnClearStepsList" class="btn btn-secondary btn-sm btn-glass" title="Xóa rỗng danh sách mã">
+                            🗑️ Xóa
+                        </button>
+                        <button type="button" id="btnImportStepsFile" class="btn btn-secondary btn-sm btn-glass" title="Nhập danh sách mã từ file Excel/CSV/TXT">
+                            📁 File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ô nhập danh sách mã: Cho phép kéo dài / kéo ngắn tự do -->
+                <textarea id="stepsTextarea" class="textarea-input steps-textarea" rows="4" placeholder="Dán danh sách mã vào đây (mỗi dòng 1 mã)...&#10;H31.05.02.H31.09.2014.548&#10;H31.05.02.H31.09.2014.547&#10;..."></textarea>
+                
+                <!-- ⚡ QUY TRÌNH 5 BƯỚC THAO TÁC (TỐI GIẢN - KHÔNG ICON, CHỈ SỐ & TEXT) -->
+                <div class="steps-pipeline-simple">
+                    <div class="steps-pipeline-header">
+                        <span class="pipeline-title">⚡ QUY TRÌNH 5 BƯỚC THAO TÁC:</span>
+                        <span class="pipeline-sub">Nhấp tuần tự hoặc chạy tự động</span>
+                    </div>
+
+                    <div class="steps-5grid">
+                        <button id="btnStep1" class="step-btn-simple" title="Bước 1: Điền mã vào ô tìm kiếm & lọc trên web">
+                            <span class="step-num">1</span>
+                            <span class="step-name">Điền & Lọc</span>
+                        </button>
+                        <button id="btnStep2" class="step-btn-simple" title="Bước 2: Quét & đếm số lượng bản ghi tìm thấy">
+                            <span class="step-num">2</span>
+                            <span class="step-name">Quét bản ghi</span>
+                        </button>
+                        <button id="btnStep3" class="step-btn-simple" title="Bước 3: Tích chọn các bản ghi thừa & Bấm Xóa hàng loạt (#ctl13_lnkDelete)">
+                            <span class="step-num">3</span>
+                            <span class="step-name">Xóa bản thừa</span>
+                        </button>
+                        <button id="btnStep4" class="step-btn-simple" title="Bước 4: Tick Xác nhận xóa & Nhấn Xóa ngay">
+                            <span class="step-num">4</span>
+                            <span class="step-name">Xác nhận xóa</span>
+                        </button>
+                        <button id="btnStep5" class="step-btn-simple" title="Bước 5: Bấm Thoát ra quay lại danh sách hồ sơ">
+                            <span class="step-num">5</span>
+                            <span class="step-name">Thoát/Lặp</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- THANH TỰ ĐỘNG XÓA HÀNG LOẠT -->
+                <div class="steps-auto-box">
+                    <div class="steps-auto-bar">
+                        <button id="btnAutoDeleteRun" class="btn btn-auto-run">
+                            <span class="auto-run-text">▶️ BẮT ĐẦU TỰ ĐỘNG XÓA HÀNG LOẠT</span>
+                        </button>
+                        <button id="btnAutoDeleteStop" class="btn btn-auto-stop" disabled title="Dừng luồng tự động (phím tắt ESC)">
+                            <span>⏹️ Dừng</span>
+                            <span class="esc-hint">ESC</span>
+                        </button>
+                    </div>
+
+                    <!-- Khung tiến độ Tự động xóa -->
+                    <div id="stepsAutoProgressBox" class="progress-section" style="display:none;">
+                        <div class="progress-labels">
+                            <span id="stepsAutoProgressText" class="progress-text-label">Đang chạy tự động: 0/0 mã</span>
+                            <span id="stepsAutoProgressPercent" class="progress-percent-badge">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="stepsAutoProgressBarFill" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Steps Log Window (Chuyên Nghiệp Như Terminal) -->
+            <div class="steps-log-container">
+                <div class="steps-log-header">
+                    <div class="terminal-dots">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <div class="terminal-title">📜 NHẬT KÝ THỰC THI (LIVE CONSOLE)</div>
+                </div>
+                <div id="stepsLogBox" class="steps-log-box">
+                    <div class="steps-log-placeholder">Sẵn sàng! Nhấp các nút 1 ➔ 5 hoặc bấm Tự Động Xóa để bắt đầu...</div>
+                </div>
+            </div>
+
+            <!-- BẢNG KẾT QUẢ XỬ LÝ & NÚT TẢI CSV -->
+            <div class="steps-results-card">
+                <div class="steps-results-header">
+                    <div class="results-header-left">
+                        <span class="results-title">📊 KẾT QUẢ XỬ LÝ QUY TRÌNH</span>
+                        <span class="results-badge" id="stepsResultBadge">0 bản ghi</span>
+                    </div>
+                    <div class="results-header-right">
+                        <button id="btnExportStepsCSV" class="btn btn-success btn-sm" title="Tải toàn bộ bảng kết quả xử lý về máy dưới dạng file CSV">
+                            📥 Tải Báo Cáo CSV
+                        </button>
+                        <button id="btnClearStepsTable" class="btn btn-secondary btn-sm" title="Xóa dữ liệu trên bảng để bắt đầu đợt mới">
+                            🗑️ Xóa bảng
+                        </button>
+                    </div>
+                </div>
+                <div id="stepsTableWrapper" class="table-wrapper">
+                    <table class="batch-table">
+                        <thead>
+                            <tr>
+                                <th style="width:38px; text-align:center;">STT</th>
+                                <th style="width:170px;">Mã xử lý</th>
+                                <th style="width:130px;">Kết quả Scan (B2)</th>
+                                <th>Bản ghi Giữ lại (#1)</th>
+                                <th>Ghi chú / Kết quả xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stepsTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; color:#64748b; padding:12px;">
+                                    Chưa có dữ liệu xử lý. Nhấp các bước hoặc bấm Chạy tự động để ghi nhận kết quả.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>Hệ thống: <a href="http://ktdl.soxaydung.hungyen.gov.vn/" target="_blank" class="footer-link">ktdl.soxaydung.hungyen.gov.vn</a></span>
+            <span class="ver-tag">v1.1.27</span>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../scripts/checker.js"></script>
+    <script src="../scripts/excel-helper.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

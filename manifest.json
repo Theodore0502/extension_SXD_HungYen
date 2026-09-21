@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "Kiểm Tra Mã Hồ Sơ Lưu Trữ - SXD Hưng Yên",
+  "version": "1.1.32",
+  "description": "Tiện ích kiểm tra nhanh, kiểm tra hàng loạt và tự động xóa trùng hồ sơ lưu trữ Vinasynet theo quy trình 7 bước (Hỗ trợ Microsoft Edge Sidebar & Tự lưu dữ liệu).",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Kiểm tra mã hồ sơ lưu trữ",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": [
+    "cookies",
+    "storage",
+    "activeTab",
+    "scripting",
+    "sidePanel",
+    "tabs"
+  ],
+  "side_panel": {
+    "default_path": "popup/popup.html"
+  },
+  "host_permissions": [
+    "*://ktdl.soxaydung.hungyen.gov.vn/*",
+    "http://ktdl.soxaydung.hungyen.gov.vn/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://ktdl.soxaydung.hungyen.gov.vn/*",
+        "http://ktdl.soxaydung.hungyen.gov.vn/*"
+      ],
+      "js": ["scripts/inject-main.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://ktdl.soxaydung.hungyen.gov.vn/*",
+        "http://ktdl.soxaydung.hungyen.gov.vn/*"
+      ],
+      "js": ["scripts/content.js"],
+      "css": ["content.css"],
+      "run_at": "document_end"
+    }
+  ]
+}

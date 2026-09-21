@@ -1,0 +1,12 @@
+﻿/* dialog */
+div.vsndialogs {position:absolute;width:40rem;height:30.5rem;z-index:999999999999;display:none;overflow:hidden;-webkit-border-radius:0.25rem;-moz-border-radius:0.25rem;border-radius:0.25rem;}
+div.dlgHeader {float:left;position:relative;width:101.1%;left:-1%;height:2rem;line-height:2rem;}
+div.dlgHeader > h1 {font-size:0.85rem;height:2rem;line-height:2rem;margin:0;padding:0 0 0 2%;width:90%;display:inline;}
+div.dlgHeader > a {float:right;position:relative;width:5%;height:2rem;line-height:2rem;text-align:center;padding:0;text-decoration:none;}
+div.dlgContainer {float:left;position:relative;width:98%;left:1%;height:26rem;}
+div.vsnbggray {position:absolute;width:3000px;height:5000px;left:-10px;top:-10px;z-index:999999999998;background:#000;display:block;opacity:0.6;filter:alpha(opacity=60);}
+/*theme*/
+div.vsndialogs {left:0;top:10px;background:#404040;margin:0;padding:0;}
+div.dlgHeader > h1 {color:#0c9ed4;text-transform:uppercase;}
+div.dlgHeader > a {font-size:1rem;color:#0c9ed4;}
+div.dlgContainer {background:#e8e8e8;}

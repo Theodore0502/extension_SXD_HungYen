@@ -1,0 +1,88 @@
+﻿body {margin:0;padding:0;max-width:100% !important;overflow-y:hidden !important;}
+.zMLayout {z-index:999999000;font-size:0.805rem;min-width:50rem;overflow-x:auto;}
+#zMLHeader {float:left;position:fixed;z-index:999999999;top:0;left:0;height:2.5rem;}
+.zMLayout .vsncontainer {float:left;position:fixed;z-index:999999888;}
+.LeftSidebar {float:left;position:fixed;width:18.99%;z-index:999999889;margin:0;overflow-x:hidden;overflow-y:auto;}
+.LeftSidebar .date {font-size:0.675rem;}
+#zMLFooter {float:left;position:fixed;z-index:999999999;left:0;bottom:0;text-align:center;}
+#zMLFooter > a {text-decoration:none;}
+.LeftSidebar::-webkit-scrollbar-thumb:hover {cursor:pointer;}
+/* header */
+.ctrlHeader {float:left;position:relative;width:99.99%;height:auto;list-style:none;display:table;margin:0.5rem 0;padding:0;}
+.ctrlHeader > li {margin:0;padding:0;display:table-cell;vertical-align:middle;}
+.ctrlHeader > li.logo {width:auto;padding:0 0 0 0.75rem;margin:0;}
+.ctrlHeader > li.logo > span {position:relative;font-size:1rem;text-transform:uppercase;font-weight:700;top:-0.1725rem;}
+.ctrlHeader > li > a.bactive {float:right;position:relative;text-decoration:none;width:auto;padding:0 1rem;margin:0 0.5rem 0 0;border-radius:0.25rem;-moz-border-radius:0.25rem;-webkit-border-radius:0.25rem;}
+div.logonav {width:auto;height:auto;}
+div.logonav > div.sckmenus {display:none;float:left;position:absolute;width:12rem;left:0rem;padding:0.5rem 0;z-index:999999999;text-align:center;}
+div.logonav > div.sckmenus > a {text-decoration:none;}
+div.logonav:hover > div.sckmenus {display:block;}
+.ctrlHeader > li.cmdbar {text-align:right;}
+.ctrlHeader > li.cmdbar > a.bactive > i {position:relative;}
+/* list tool */
+.listtools {float:left;position:relative;width:99.99%;list-style:none;display:table;margin:0;padding:0;}
+.listtools > li {margin:0;padding:0;display:table-cell;vertical-align:middle;width:auto;text-align:left;}
+.listtools > li.searchbar, .listtools > li.tabmenus {width:auto;}
+.listtools > li.tabmenus > a.tab {float:left;position:relative;display:inline-block;margin:0;padding:0.5rem 1rem;text-decoration:none;}
+.listtools > li.searchbar {text-align:right;padding:0.25rem 1% 0.25rem 0;}
+.listtools > li.searchbar > input {float:none;position:relative;width:8rem;}
+.listtools > li.searchbar > a.btnFilter {float:none;position:relative;padding:0.25rem 1rem;border-radius:0.25rem;-webkit-border-radius:0.25rem;-moz-border-radius:0.25rem;}
+.listtools > li.statusbar {width:10%;text-align:center;}
+.listtools > li.pagingbar {width:80%;display:table-cell;}
+.listtools > li.viewbar {display:table-cell;width:19%;text-align:right;}
+.listtools > li.viewbar > a {text-decoration:none;}
+/*grid container*/
+.gcontainer {overflow-x:hidden;overflow-y:auto;background:#f8f8f8;}
+.gcontainer > table {width:97.999%;margin:1%;border-collapse:collapse;}
+.gcontainer > table > tbody > tr > th {vertical-align:middle;}
+th.selector, th.index, th.lang {width:1.5rem;text-align:center;} th.cmd {width:3.75rem;} th.cmd2 {width:7.5rem;} th.cmd3 {width:10rem;} th.name, th.title {width:auto;}
+.gcontainer > table > tbody > tr > td {padding:0 0.25rem 0 0.25rem;vertical-align:middle;}
+td.selector, td.index, td.lang {width:1.5rem;text-align:center;} td.cmd {text-align:center;}
+a.gcmdButton {display:block;margin:0.25rem 0;padding:0 0.75rem;text-decoration:none;border-radius:3px;-webkit-border-radius:0.25rem;-moz-border-radius:0.25rem;}
+.gcontainer > table tr > td > a {text-decoration:none;}
+/*update2021*/
+.gcontainer > table td.name > h1 {font-weight:normal;margin:0;}
+.gcontainer > table td.name > div.smenus {display:none;}
+.gcontainer > table td.name:hover > h1 {font-weight:bold;}
+.gcontainer > table td.name:hover > div.smenus {display:block;position:relative;width:99.99%;}
+.gcontainer > table td.name:hover > div.smenus > a {text-decoration:none;}
+/*paging*/
+ul.zPaging {margin:0;padding:0;list-style:none;width:auto;display:table;}
+ul.zPaging > li {padding:0;display:table-cell;width:auto;height:auto;text-align:center;margin:0;}
+ul.zPaging > li > a {text-decoration:none;display:block;}
+ul.zPaging > li > a:hover {font-weight:bold;}
+ul.zPaging > li.current {padding:0.25rem 0.5rem;font-weight:bold;}
+ul.zPaging > li.total {text-align:left;width:auto;}
+/*form*/
+.fMessage {width:99.99%;text-align:center;}
+.fContainer {width:97.99%;overflow-x:hidden;overflow-y:scroll;padding:1% 1% 0 1%;}
+.fContainer > table {width:98%;border-collapse:collapse;float:left;position:relative;margin:0 0 0 50%;left:-49%;}
+.fContainer > table > tbody > tr {width:auto;height:auto;text-align:left;vertical-align:middle;}
+.fContainer td.head {font-size:0.8rem;border:1px solid #e8e8e8;}
+.fContainer::-webkit-scrollbar-thumb:hover {cursor:pointer;}
+td.caption {width:20%;text-align:right;padding:0 0.5rem 0 0;}
+td.control {padding:0 0 0 0.5rem;}
+td.control > .textbox, td.control > .textboxselect, td.control > .dropdown {float:left;position:relative;width:99%;border:none;padding:0;display:inline-block;margin:0;outline:none;}
+td.control > .textboxselect {float:left;position:relative;width:80%;}
+td.control > a {float:left;position:relative;width:15%;padding:0.5rem 0 0 2%;}
+td.control > img {width:99.6%;height:auto;display:inline-block;}
+td.control > img.icon {display:block;}
+td.info {width:1%;}
+.fButton {text-align:center;}
+.fDeleteContainer {width:97.99%;overflow-x:hidden;overflow-y:scroll;padding:1% 1% 0 1%;}
+.fDeleteContainer > h1 {margin:0 0 0.5rem 0;padding:0;}
+.fDeleteContainer > h2 {margin:0.5rem 0 0 0;padding:0;}
+.fDeleteContainer > span {margin:0;padding:0;}
+.fDeleteContainer > table {width:99.99%;height:auto;border-collapse:collapse;}
+.fDeleteContainer > table tr th, .fDeleteContainer > table tr td {width:auto;height:auto;}
+.fDeleteContainer > table tr td.stt {width:2rem;text-align:center;}
+.fDeleteContainer > table tr td.tt {width:6rem;text-align:center;}
+.fDeleteContainer::-webkit-scrollbar-thumb:hover {cursor:pointer;}
+/* view detail */
+.fContainer > table td.col0 {width:99.99%;height:auto;text-align:left;vertical-align:middle;}
+.fContainer > table td.col1, .fContainer > table td.col2 {width:30%;height:auto;text-align:left;vertical-align:middle;}
+/* dialog */
+div.vsndialogs {position:absolute;width:600px;height:400px;left:0;top:0;z-index:999999999999;background:#e8e8e8;border:2px solid #066276;display:none;overflow:hidden;}
+div.vsndialogs > h1.dlgHeader {float:left;position:relative;width:93.99%;height:30px;line-height:30px;font-size:1em;background:#066276;color:#fff;margin:0 0 5px 0;padding:0 0 0 1%;}
+div.vsndialogs > a.dlgCloseButton {float:left;position:relative;width:4%;height:30px;line-height:30px;font-size:1em;background:#066276;color:#fff;text-align:right;padding:0 1% 0 0;}
+div.vsnbggray {position:absolute;width:3000px;height:5000px;left:-10px;top:-10px;z-index:999999999998;background:#000;display:block;opacity:0.6;filter:alpha(opacity=60);}
